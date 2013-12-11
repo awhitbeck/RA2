@@ -152,6 +152,7 @@ void FinalPlot::draw() const {
   const std::string outName = "SUS-13-012_Result_"+var_;
   can->SaveAs((outName+".pdf").c_str());
   can->SaveAs((outName+".png").c_str());
+  can->SaveAs((outName+".C").c_str());
 
   // Clean up
   for(std::vector<TH1*>::iterator it = stack.begin();
