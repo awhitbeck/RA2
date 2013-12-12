@@ -38,6 +38,5 @@ private:
   void createBackgroundHistogramWithErrors(const BackgroundDistribution* bkg, TH1* &hBkg, TH1* &hDn, TH1* &hUp) const;
   void rebin(TH1* &h, const TString &type) const;
   bool logy() const { return true; }
-  void setGStyle() const;
 };
 #endif

@@ -12,6 +12,7 @@
 #include "InclusiveSearchBin.h"
 #include "FinalPlot.h"
 #include "SearchBin.h"
+#include "Style.h"
 
 std::string PWD;
 
@@ -288,31 +289,8 @@ std::vector<InclusiveSearchBin*> getInclusiveSearchBins(const std::string &var, 
 }
 
 
-// Some style settings
-std::string legendLabel(const std::string &id) {
-  std::string label = id;
-  if(      id == "Data"       ) label = "Data";
-  else if( id == "QCD"        ) label = "QCD";
-  else if( id == "LostLepton" ) label = "W/t#bar{t} #rightarrow e/#mu+jets";
-  else if( id == "HadTau"     ) label = "W/t#bar{t} #rightarrow #tau_{h}+jets";
-  else if( id == "ZInv"       ) label = "Z #rightarrow #nu#bar{#nu}+jets";
-
-  return label;
-}
-
-int color(const std::string &id) {
-  int col = kBlack;
-  if(      id == "Data"       ) col = kBlack;
-  else if( id == "QCD"        ) col = kRed+3;
-  else if( id == "LostLepton" ) col = kRed+1;
-  else if( id == "HadTau"     ) col = kYellow;
-  else if( id == "ZInv"       ) col = kGreen+1;
-
-  return col;
-}
-
-
 int main() {
+  Style::init();
   PWD = "/home/matsch/Development/FinalPlots/";
 
   // Define plotted variables
@@ -378,8 +356,8 @@ int main() {
       // Add background distribution with approximated proper
       // yields and uncertainties to plot
       BackgroundDistribution* bkgDist = new BackgroundDistribution(bkg,var,hBkg,inclSearchBins);
-      bkgDist->setLegendLabel(legendLabel(bkg));
-      bkgDist->setFillColor(color(bkg));
+      bkgDist->setLegendLabel(Style::legendLabel(bkg));
+      bkgDist->setFillColor(Style::color(bkg));
       plot->addBackground(bkgDist);
 
       // Delete up helper objecs
