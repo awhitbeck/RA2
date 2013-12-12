@@ -38,7 +38,7 @@ FinalPlot::FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool 
 
   hRatioFrame_ = static_cast<TH1*>( hDataDrawn_->Clone("hRatioFrame") );
   for(int xBin = 1; xBin <= hRatioFrame_->GetNbinsX(); ++xBin) {
-    hRatioFrame_->SetBinContent(xBin,1.);
+    hRatioFrame_->SetBinContent(xBin,0.);
   }
   hRatioFrame_->SetFillColor(0);
   hRatioFrame_->SetLineStyle(2);
@@ -48,8 +48,8 @@ FinalPlot::FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool 
   if(      var_ == "HT"    ) hRatioFrame_->GetXaxis()->SetTitle("H_{T} [GeV]");
   else if( var_ == "MHT"   ) hRatioFrame_->GetXaxis()->SetTitle("#slash{H}_{T} [GeV]");
   else if( var_ == "NJets" ) hRatioFrame_->GetXaxis()->SetTitle("N(jets)");
-  hRatioFrame_->GetYaxis()->SetRangeUser(0.01,1.99);
-  hRatioFrame_->GetYaxis()->SetTitle("#frac{Data}{Pred.}");
+  hRatioFrame_->GetYaxis()->SetRangeUser(-0.99,0.99);
+  hRatioFrame_->GetYaxis()->SetTitle("(Data-Pred)/Pred");
   hRatioFrame_->GetYaxis()->SetNdivisions(205);
   hRatioFrame_->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.2);
   hRatioFrame_->GetYaxis()->CenterTitle();
@@ -134,13 +134,13 @@ void FinalPlot::draw() const {
   TCanvas* can = new TCanvas(("can_"+var_).c_str(),("can_"+var_).c_str(),500,500);
   can->SetBottomMargin(0.2 + 0.8*can->GetBottomMargin()-0.2*can->GetTopMargin());
   can->cd();
-  hDataDrawn_->Draw("PE1");
+  hDataDrawn_->Draw("PE");
   for(std::vector<TH1*>::const_reverse_iterator rit = stack.rbegin();
       rit != stack.rend(); ++rit) {
     (*rit)->Draw("HISTsame");
   }
   errorBand->Draw("E2same");
-  hDataDrawn_->Draw("PE1same");
+  hDataDrawn_->Draw("PEsame");
   leg->Draw("same");
   title_->Draw("same");
   gPad->RedrawAxis();
@@ -155,7 +155,7 @@ void FinalPlot::draw() const {
   ratioPad->cd();
   hRatioFrame_->Draw("HIST");
   ratioErrorBand->Draw("E2same");
-  hRatio->Draw("PE1same");
+  hRatio->Draw("PEsame");
 
   gPad->RedrawAxis();
 
@@ -247,10 +247,10 @@ void FinalPlot::createRatioPlotAndErrorBand(const TH1* hData, const TH1* hBkg, c
   for(int bin = 1; bin <= hRatio->GetNbinsX(); ++bin) {
     const double bkg = hBkg->GetBinContent(bin);
     if( bkg > 0. ) {
-      hRatio->SetBinContent(bin, hRatio->GetBinContent(bin) / bkg );
+      hRatio->SetBinContent(bin, hRatio->GetBinContent(bin) / bkg - 1. );
       hRatio->SetBinError(bin, hRatio->GetBinError(bin) / bkg );
     } else {
-      hRatio->SetBinContent(bin,0.);
+      hRatio->SetBinContent(bin,-1.);
       hRatio->SetBinError(bin,0.);
     }
   }
@@ -259,11 +259,11 @@ void FinalPlot::createRatioPlotAndErrorBand(const TH1* hData, const TH1* hBkg, c
   for(int i = 0; i < ratioBand->GetN(); ++i) {
     const double bkg = hBkg->GetBinContent(i+1);
     if( bkg > 0. ) {
-      ratioBand->GetY()[i] /= bkg;
+      ratioBand->GetY()[i] = ratioBand->GetY()[i] / bkg - 1.;
       ratioBand->GetEYlow()[i] /= bkg;
       ratioBand->GetEYhigh()[i] /= bkg;      
     } else {
-      ratioBand->GetY()[i] = 1.;
+      ratioBand->GetY()[i] = -1.;
       ratioBand->GetEYlow()[i] = 0.;
       ratioBand->GetEYhigh()[i] = 0.;      
     }      
