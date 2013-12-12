@@ -54,6 +54,8 @@ FinalPlot::FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool 
   hRatioFrame_->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.2);
   hRatioFrame_->GetYaxis()->CenterTitle();
   hRatioFrame_->GetYaxis()->SetTitleOffset(0.9*hRatioFrame_->GetYaxis()->GetTitleOffset());
+
+  title_ = new TPaveText();
 }
 
 
@@ -65,6 +67,7 @@ FinalPlot::~FinalPlot() {
       bkgIt != bkgs_.end(); ++bkgIt) {
     delete *bkgIt;
   }
+  delete title_;
 }
 
 
@@ -89,20 +92,27 @@ void FinalPlot::addBackground(BackgroundDistribution* bkg) {
 }
 
 
-void FinalPlot::draw() const {
+void FinalPlot::setTitle(const std::vector<std::string>& lines) {
   // Create histogram title
-  TPaveText *title = new TPaveText(gStyle->GetPadLeftMargin(),
-				 1.-gStyle->GetPadRightMargin(),
-				 1.-gStyle->GetPadTopMargin()+0.01,
-				 1.,"NDC");
-  title->SetBorderSize(0);
-  title->SetFillColor(0);
-  title->SetTextFont(42);
-  title->SetTextAlign(12);
-  title->SetTextSize(0.044);
-  title->SetMargin(0.);
-  title->AddText("CMS,  19.5 fb^{-1},  #sqrt{s} = 8 TeV");
+  delete title_;
+  title_ = new TPaveText(gStyle->GetPadLeftMargin(),
+			 1.-gStyle->GetPadRightMargin(),
+			 1.-gStyle->GetPadTopMargin()+0.01,
+			 1.,"NDC");
+  title_->SetBorderSize(0);
+  title_->SetFillColor(0);
+  title_->SetTextFont(42);
+  title_->SetTextAlign(12);
+  title_->SetTextSize(0.044);
+  title_->SetMargin(0.);
+  for(std::vector<std::string>::const_iterator it = lines.begin();
+      it != lines.end(); ++it) {
+    title_->AddText(it->c_str());
+  }
+}
 
+
+void FinalPlot::draw() const {
   // Create legend
   TLegend* leg = new TLegend(0.5,0.6,1.-gStyle->GetPadRightMargin()-0.05,1.-gStyle->GetPadTopMargin()-0.03);
   leg->SetFillColor(0);
@@ -132,7 +142,7 @@ void FinalPlot::draw() const {
   errorBand->Draw("E2same");
   hDataDrawn_->Draw("PE1same");
   leg->Draw("same");
-  title->Draw("same");
+  title_->Draw("same");
   gPad->RedrawAxis();
   if( logy() ) can->SetLogy();
 
@@ -162,7 +172,6 @@ void FinalPlot::draw() const {
   delete errorBand;
   delete hRatio;
   delete ratioErrorBand;
-  delete title;
   delete leg;
   delete can;
 }

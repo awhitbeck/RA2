@@ -7,6 +7,7 @@
 #include "TH1.h"
 #include "TGraphAsymmErrors.h"
 #include "TLegend.h"
+#include "TPaveText.h"
 
 #include "BackgroundDistribution.h"
 
@@ -14,13 +15,12 @@
 class FinalPlot {
 public:
   FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool lastBinIsOverflow);
-
   ~FinalPlot();
 
-
   void addBackground(BackgroundDistribution* bkg);
+  void setTitle(const std::vector<std::string>& lines);
   void draw() const;
-  
+
 
 private:
   const std::string var_;
@@ -31,6 +31,7 @@ private:
   TH1* hDataDrawn_;	       	// Data histogram with style changes and possibly rebinned
   TH1* hRatioFrame_;
   std::vector<BackgroundDistribution*> bkgs_;
+  TPaveText* title_;
 
   void createBackgroundStackAndErrorBand(std::vector<TH1*> &stack, TGraphAsymmErrors* &band, TLegend* leg) const;
   void createRatioPlotAndErrorBand(const TH1* hData, const TH1* hBkg, const TGraphAsymmErrors* band, TH1* &hRatio, TGraphAsymmErrors* &ratioBand) const;
