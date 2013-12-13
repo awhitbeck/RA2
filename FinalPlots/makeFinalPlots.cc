@@ -13,180 +13,13 @@
 #include "HistogramReader.h"
 #include "InclusiveSearchBin.h"
 #include "SearchBin.h"
+#include "SearchBinManager.h"
 #include "Style.h"
-
-std::string PWD;
-
-
-std::vector<SearchBin*> getSearchBins(const std::string &id) {
-  std::string fileName(PWD+"data/");
-  if(      id == "QCD"        ) fileName += "qcd_searchBinPredictions.txt";
-  else if( id == "LostLepton" ) fileName += "lostLepton_searchBinPredictions.txt";
-  else if( id == "HadTau"     ) fileName += "tau_searchBinPredictions.txt";
-  else if( id == "ZInv"       ) fileName += "zinvis_searchBinPredictions.txt";
-  else {
-    std::cerr << "\n\nERROR when reading '" << id << "' search-bin yields" << std::endl;
-    std::cerr << "  Unknown id '" << id << "'" << std::endl;
-    throw std::exception();
-  }
-  
-  return SearchBin::createFromTxtFile(fileName);
-}
-
-
-std::vector<InclusiveSearchBin*> getInclusiveSearchBins(const std::string &var, const std::vector<SearchBin*> &searchBins) {
-
-  std::vector<InclusiveSearchBin*> inclBins;
-
-  if( var == "HT" ) {
-    // 500 < HT < 800
-    inclBins.push_back(new InclusiveSearchBin(var,500.,800.));
-    inclBins.back()->addSearchBin(searchBins.at(0));
-    inclBins.back()->addSearchBin(searchBins.at(1));
-    inclBins.back()->addSearchBin(searchBins.at(2));
-    inclBins.back()->addSearchBin(searchBins.at(3));
-    inclBins.back()->addSearchBin(searchBins.at(17));
-    inclBins.back()->addSearchBin(searchBins.at(18));
-    inclBins.back()->addSearchBin(searchBins.at(19));
-    inclBins.back()->addSearchBin(searchBins.at(31));
-    
-    // 800 < HT < 1000
-    inclBins.push_back(new InclusiveSearchBin(var,800.,1000.));
-    inclBins.back()->addSearchBin(searchBins.at(4));
-    inclBins.back()->addSearchBin(searchBins.at(5));
-    inclBins.back()->addSearchBin(searchBins.at(6));
-    inclBins.back()->addSearchBin(searchBins.at(7));
-    inclBins.back()->addSearchBin(searchBins.at(20));
-    inclBins.back()->addSearchBin(searchBins.at(21));
-    inclBins.back()->addSearchBin(searchBins.at(22));
-    inclBins.back()->addSearchBin(searchBins.at(32));
-    
-    // 1000 < HT < 1250
-    inclBins.push_back(new InclusiveSearchBin(var,1000.,1250.));
-    inclBins.back()->addSearchBin(searchBins.at(8));
-    inclBins.back()->addSearchBin(searchBins.at(9));
-    inclBins.back()->addSearchBin(searchBins.at(10));
-    inclBins.back()->addSearchBin(searchBins.at(11));
-    inclBins.back()->addSearchBin(searchBins.at(23));
-    inclBins.back()->addSearchBin(searchBins.at(24));
-    inclBins.back()->addSearchBin(searchBins.at(25));
-    inclBins.back()->addSearchBin(searchBins.at(33));
-
-    // 1250 < HT < 1500
-    inclBins.push_back(new InclusiveSearchBin(var,1250.,1500.));
-    inclBins.back()->addSearchBin(searchBins.at(12));
-    inclBins.back()->addSearchBin(searchBins.at(13));
-    inclBins.back()->addSearchBin(searchBins.at(14));
-    inclBins.back()->addSearchBin(searchBins.at(26));
-    inclBins.back()->addSearchBin(searchBins.at(27));
-    inclBins.back()->addSearchBin(searchBins.at(28));
-    inclBins.back()->addSearchBin(searchBins.at(34));
-
-    // HT > 1500
-    inclBins.push_back(new InclusiveSearchBin(var,1500.,99999.));
-    inclBins.back()->addSearchBin(searchBins.at(15));
-    inclBins.back()->addSearchBin(searchBins.at(16));
-    inclBins.back()->addSearchBin(searchBins.at(29));
-    inclBins.back()->addSearchBin(searchBins.at(30));
-    inclBins.back()->addSearchBin(searchBins.at(35));
-
-  } else   if( var == "MHT" ) {
-    // 200 < MHT < 300
-    inclBins.push_back(new InclusiveSearchBin(var,200.,300.));
-    inclBins.back()->addSearchBin(searchBins.at(0));
-    inclBins.back()->addSearchBin(searchBins.at(4));
-    inclBins.back()->addSearchBin(searchBins.at(8));
-    inclBins.back()->addSearchBin(searchBins.at(12));
-    inclBins.back()->addSearchBin(searchBins.at(15));
-    inclBins.back()->addSearchBin(searchBins.at(17));
-    inclBins.back()->addSearchBin(searchBins.at(20));
-    inclBins.back()->addSearchBin(searchBins.at(23));
-    inclBins.back()->addSearchBin(searchBins.at(26));
-    inclBins.back()->addSearchBin(searchBins.at(29));
-    inclBins.back()->addSearchBin(searchBins.at(31));
-    inclBins.back()->addSearchBin(searchBins.at(32));
-    inclBins.back()->addSearchBin(searchBins.at(33));
-    inclBins.back()->addSearchBin(searchBins.at(34));
-    inclBins.back()->addSearchBin(searchBins.at(35));
-
-    // 300 < MHT < 450
-    inclBins.push_back(new InclusiveSearchBin(var,300.,450.));
-    inclBins.back()->addSearchBin(searchBins.at(1));
-    inclBins.back()->addSearchBin(searchBins.at(5));
-    inclBins.back()->addSearchBin(searchBins.at(9));
-    inclBins.back()->addSearchBin(searchBins.at(13));
-    inclBins.back()->addSearchBin(searchBins.at(16));
-    inclBins.back()->addSearchBin(searchBins.at(18));
-    inclBins.back()->addSearchBin(searchBins.at(21));
-    inclBins.back()->addSearchBin(searchBins.at(24));
-    inclBins.back()->addSearchBin(searchBins.at(27));
-    inclBins.back()->addSearchBin(searchBins.at(30));
-
-    // inclBins.back()->addSearchBin(searchBins.at(31));
-    // inclBins.back()->addSearchBin(searchBins.at(32));
-    // inclBins.back()->addSearchBin(searchBins.at(33));
-    // inclBins.back()->addSearchBin(searchBins.at(34));
-    // inclBins.back()->addSearchBin(searchBins.at(35));
-
-
-    // 450 < MHT < 600
-    inclBins.push_back(new InclusiveSearchBin(var,450.,600.));
-    inclBins.back()->addSearchBin(searchBins.at(2));
-    inclBins.back()->addSearchBin(searchBins.at(6));
-    inclBins.back()->addSearchBin(searchBins.at(10));
-    inclBins.back()->addSearchBin(searchBins.at(14));
-    inclBins.back()->addSearchBin(searchBins.at(19));
-    inclBins.back()->addSearchBin(searchBins.at(22));
-    inclBins.back()->addSearchBin(searchBins.at(25));
-    inclBins.back()->addSearchBin(searchBins.at(28));
-
-    // inclBins.back()->addSearchBin(searchBins.at(16));
-    // inclBins.back()->addSearchBin(searchBins.at(30));
-
-    // MHT > 600
-    inclBins.push_back(new InclusiveSearchBin(var,600.,9999.));
-    inclBins.back()->addSearchBin(searchBins.at(3));
-    inclBins.back()->addSearchBin(searchBins.at(7));
-    inclBins.back()->addSearchBin(searchBins.at(11));
-
-    // inclBins.back()->addSearchBin(searchBins.at(14));
-    // inclBins.back()->addSearchBin(searchBins.at(19));
-    // inclBins.back()->addSearchBin(searchBins.at(22));
-    // inclBins.back()->addSearchBin(searchBins.at(25));
-    // inclBins.back()->addSearchBin(searchBins.at(28));
-
-  } else  if( var == "NJets" ) {
-    // 3 <= NJets <= 5
-    inclBins.push_back(new InclusiveSearchBin(var,3,5));
-    for(int i = 0; i <= 16; ++i) {
-      inclBins.back()->addSearchBin(searchBins.at(i));
-    }
-    
-    // 6 <= NJets <= 7
-    inclBins.push_back(new InclusiveSearchBin(var,6,7));
-    for(int i = 17; i <= 30; ++i) {
-      inclBins.back()->addSearchBin(searchBins.at(i));
-    }
-    
-    // NJets >= 8
-    inclBins.push_back(new InclusiveSearchBin(var,8,99999));
-    for(int i = 31; i <= 35; ++i) {
-      inclBins.back()->addSearchBin(searchBins.at(i));
-    }
-
-  } else {
-    std::cerr << "\n\nERROR when creating inclusive search bins" << std::endl;
-    std::cerr << "  Unknown variable '" << var << "'" << std::endl;
-    throw std::exception();
-  }
-
-  return inclBins;
-}
 
 
 int main() {
   Style::init();
-  PWD = "/home/matsch/Development/FinalPlots/";
+  const std::string pwd = "/home/matsch/Development/FinalPlots/";
 
   // Define combination mode
   const std::string mode("NJetsInclusive");
@@ -204,22 +37,13 @@ int main() {
   bkgs.push_back("HadTau");
   bkgs.push_back("ZInv");
 
-  // Get background yields in search bins
-  std::map< std::string, std::vector<SearchBin*> > searchBinsForBkgs;
-  for(std::vector<std::string>::const_iterator bkgIt = bkgs.begin();
-      bkgIt != bkgs.end(); ++bkgIt) {
-    const std::string bkg = *bkgIt;
-    std::cout << "\n\nReading " << bkg << " background predictions in search bins" << std::endl;
-    std::vector<SearchBin*> searchBins = getSearchBins(bkg);
-    for(std::vector<SearchBin*>::const_iterator it = searchBins.begin();
-	it != searchBins.end(); ++it) {
-      (*it)->print();
-    }
-    searchBinsForBkgs[bkg] = searchBins;
-  }
+  // Takes care of reading the histograms
+  const HistogramReader hReader(pwd+"/data");
+
+  // Takes care of search-bin reading and combination
+  const SearchBinManager binManager(pwd+"/data",bkgs);
 
   // Loop over variables
-  HistogramReader hReader(PWD+"/data");
   for(std::vector<std::string>::const_iterator varIt = vars.begin();
       varIt != vars.end(); ++varIt) {
     const std::string var = *varIt;
@@ -242,11 +66,8 @@ int main() {
       // Get background histogram
       const TH1* hBkg = hReader.getHistogram(bkg,mode,var);
       
-      // Retrieve individual search bins from map
-      const std::vector<SearchBin*> searchBins = searchBinsForBkgs.find(bkg)->second;
-      
-      // Combine search bins for this variable
-      std::vector<InclusiveSearchBin*> inclSearchBins = getInclusiveSearchBins(var,searchBins);
+      // Combined search bins for this variable
+      std::vector<InclusiveSearchBin*> inclSearchBins = binManager.getInclusiveSearchBins(var,mode,bkg);
       for(std::vector<InclusiveSearchBin*>::const_iterator it = inclSearchBins.begin();
 	  it != inclSearchBins.end(); ++it) {
 	(*it)->print();
@@ -273,15 +94,6 @@ int main() {
     delete plot;
     
   } // End of loop over the histogram variables
-  
-  // Clean up
-  for(std::map< std::string, std::vector<SearchBin*> >::iterator mit = searchBinsForBkgs.begin();
-      mit != searchBinsForBkgs.end(); ++mit) {
-    for(std::vector<SearchBin*>::iterator sit = mit->second.begin();
-	sit != mit->second.end(); ++sit) {
-      delete *sit;
-    }
-  }
   
   return 0;
 }
