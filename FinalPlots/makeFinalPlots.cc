@@ -9,118 +9,13 @@
 #include "TH1.h"
 
 #include "BackgroundDistribution.h"
-#include "InclusiveSearchBin.h"
 #include "FinalPlot.h"
+#include "HistogramReader.h"
+#include "InclusiveSearchBin.h"
 #include "SearchBin.h"
 #include "Style.h"
 
 std::string PWD;
-
-
-TH1* getAdjustedHistogram(TH1* h, const std::string &var) {
-  TH1* hNew = NULL;
-  if(      var == "HT"    )  hNew = new TH1D(h->GetName(),"",45,500,2750);
-  else if( var == "MHT"   )  hNew = new TH1D(h->GetName(),"",19,200,1150);
-  else if( var == "NJets" )  hNew = new TH1D(h->GetName(),"",8,2.5,10.5);
-  const int lastBin = hNew->GetNbinsX();
-  for(int bin = 1; bin <= lastBin; ++bin) {
-    const int origBin = h->FindBin(hNew->GetBinCenter(bin));
-    if( var != "NJets" ) {
-      const double origMin = h->GetXaxis()->GetBinLowEdge(origBin);
-      const double origMax = h->GetXaxis()->GetBinUpEdge(origBin);
-      const double min = hNew->GetXaxis()->GetBinLowEdge(bin);
-      const double max = hNew->GetXaxis()->GetBinUpEdge(bin);
-      if( origMin != min || origMax != max ) {
-	std::cerr << "\n\nERROR when adjusting histogram '" << h->GetName() << "'" << std::endl;
-	std::cerr << "  Wrong edges in bin " << bin << std::endl;
-	std::cerr << "    orig min = " << origMin << " != " << min << " = min" << std::endl;
-	std::cerr << "    orig max = " << origMax << " != " << max << " = max" << std::endl;
-	throw std::exception();
-      }
-    }
-    hNew->SetBinContent(bin,h->GetBinContent(origBin));
-    hNew->SetBinError(bin,h->GetBinError(origBin));
-  }
-  // Content of the last new bin
-  double overflowContent = hNew->GetBinContent(lastBin);
-  double overflowError2 = hNew->GetBinError(lastBin)*hNew->GetBinError(lastBin);
-  // Add content of further original bins
-  for(int origBin = h->FindBin(hNew->GetBinCenter(lastBin))+1;
-      origBin <= h->GetNbinsX(); ++origBin) {
-    overflowContent += h->GetBinContent(origBin);
-    overflowError2 += h->GetBinError(origBin)*h->GetBinError(origBin);
-  }      
-  hNew->SetBinContent(lastBin,overflowContent);
-  hNew->SetBinError(lastBin,sqrt(overflowError2));
-
-  return hNew;
-}
-
-
-TH1* getHistogram(const std::string &id, const std::string &var) {
-  if( !( var == "HT" || var == "MHT" || var == "NJets" ) ) {
-    std::cerr << "\n\nERROR when getting '" << var << "' histograms from file" << std::endl;
-    std::cerr << "  Unknown variable '" << var << "'" << std::endl;
-    throw std::exception();
-  }
-
-  std::string fileName(PWD+"data/");
-  std::string histName("");
-
-  if(      id == "Data" ) {
-    fileName += "SUS-13-012_DataHistogramsBaseline.root";
-    if(      var == "HT"    ) histName = "hHT";
-    else if( var == "MHT"   ) histName = "hMHT";
-    else if( var == "NJets" ) histName = "hNJets";
-
-  } else if( id == "QCD"  ) {
-    fileName += "QCDPrediction_histos.root";
-    if(      var == "HT"    ) histName = "HT_baseline_pred_px";
-    else if( var == "MHT"   ) histName = "MHT_baseline_pred_px";
-    else if( var == "NJets" ) histName = "NJets_baseline_pred_px";
-
-  } else if( id == "LostLepton"  ) {
-    fileName += "lostleptonTH1d.root";
-    if(      var == "HT"    ) histName = "LostLepton/HT";
-    else if( var == "MHT"   ) histName = "LostLepton/MHT";
-    else if( var == "NJets" ) histName = "LostLepton/NJet";
-
-  } else if( id == "HadTau"  ) {
-    fileName += "HadTauPrediction_HTMHTNjet_v2.root";
-    if(      var == "HT"    ) histName = "HT_hadtau_baseline_pred";
-    else if( var == "MHT"   ) histName = "MHT_hadtau_baseline_pred";
-    else if( var == "NJets" ) histName = "NJets_hadtau_baseline_pred";
-
-  } else if( id == "ZInv"  ) {
-    fileName += "zinvisible_LO_predicted_distributions.root";
-    if(      var == "HT"    ) histName = "htPlot";
-    else if( var == "MHT"   ) histName = "mhtPlot";
-    else if( var == "NJets" ) histName = "nJetsPlot";
-
-  } else {
-    std::cerr << "\n\nERROR when getting '" << var << "' histograms from file" << std::endl;
-    std::cerr << "  Unknown id '" << id << "'" << std::endl;
-    throw std::exception();
-  }
-
-  TFile file(fileName.c_str(),"READ");
-  TH1* h = NULL;
-  file.GetObject(histName.c_str(),h);
-  if( h == NULL ) {
-    std::cerr << "\n\nERROR when getting '" << var << "' histograms from file" << std::endl;
-    std::cerr << "  Histogram '" << histName << "' not found" << std::endl;
-    throw std::exception();
-  }
-  h->SetDirectory(0);
-  h->SetName(("h"+var+"_"+id).c_str());
-  file.Close();
-  // scale had-tau
-  if( id == "HadTau" ) h->Scale(h->GetBinWidth(1));
-  TH1* hAdjusted = getAdjustedHistogram(h,var);
-  delete h;
-
-  return hAdjusted;
-}
 
 
 std::vector<SearchBin*> getSearchBins(const std::string &id) {
@@ -293,6 +188,9 @@ int main() {
   Style::init();
   PWD = "/home/matsch/Development/FinalPlots/";
 
+  // Define combination mode
+  const std::string mode("NJetsInclusive");
+
   // Define plotted variables
   std::vector<std::string> vars;
   vars.push_back("HT");
@@ -321,6 +219,7 @@ int main() {
   }
 
   // Loop over variables
+  HistogramReader hReader(PWD+"/data");
   for(std::vector<std::string>::const_iterator varIt = vars.begin();
       varIt != vars.end(); ++varIt) {
     const std::string var = *varIt;
@@ -328,7 +227,7 @@ int main() {
     std::cout << "\n\nCreating the " << var << " plot" << std::endl;
 
     // Create the plot
-    const TH1* hData = getHistogram("Data",var);
+    const TH1* hData = hReader.getHistogram("Data",mode,var);
     const bool rebin = ( var == "HT" ); // Want to go from 50 to 100 GeV bins after scaling
     const bool lastBinIsOverflow = true;
     FinalPlot* plot = new FinalPlot(var,hData,rebin,lastBinIsOverflow);
@@ -341,7 +240,7 @@ int main() {
       std::cout << "Adding the " << bkg << " background to the " << var << " plot" << std::endl;
       
       // Get background histogram
-      const TH1* hBkg = getHistogram(bkg,var);
+      const TH1* hBkg = hReader.getHistogram(bkg,mode,var);
       
       // Retrieve individual search bins from map
       const std::vector<SearchBin*> searchBins = searchBinsForBkgs.find(bkg)->second;

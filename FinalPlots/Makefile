@@ -24,7 +24,7 @@ InclusiveSearchBin.o: InclusiveSearchBin.h InclusiveSearchBin.cc SearchBin.h
 SearchBin.o: SearchBin.h SearchBin.cc StringParser.h
 	g++ $(CFLAG) -c SearchBin.cc
 
-makeFinalPlots.o: makeFinalPlots.cc BackgroundDistribution.h InclusiveSearchBin.h FinalPlot.h SearchBin.h Style.h
+makeFinalPlots.o: makeFinalPlots.cc BackgroundDistribution.h InclusiveSearchBin.h FinalPlot.h SearchBin.h Style.h HistogramReader.h
 	g++ $(CFLAG) -c makeFinalPlots.cc
 
 
