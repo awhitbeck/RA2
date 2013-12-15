@@ -133,12 +133,16 @@ void BackgroundDistribution::scaleInRange(int firstHistBin, int lastHistBin, con
     for(int histBin = firstHistBin; histBin <= lastHistBin; ++histBin) {
       denom += ( yields_.at(histBin-1) + yields_.at(histBin-1)*yields_.at(histBin-1) );
     }
-    const double scaleDn = sqrt( ( inclSearchBin->statDn()*inclSearchBin->statDn() + 
-				   inclSearchBin->systDn()*inclSearchBin->systDn()   ) /
-				 denom                                                   );
-    const double scaleUp = sqrt( ( inclSearchBin->statUp()*inclSearchBin->statUp() + 
-				   inclSearchBin->systUp()*inclSearchBin->systUp()   ) /
-				 denom                                                   );
+    double scaleDn = 0.;
+    double scaleUp = 0.;
+    if( denom ) {
+      scaleDn = sqrt( ( inclSearchBin->statDn()*inclSearchBin->statDn() + 
+			inclSearchBin->systDn()*inclSearchBin->systDn()   ) /
+		      denom                                                   );
+      scaleUp = sqrt( ( inclSearchBin->statUp()*inclSearchBin->statUp() + 
+			inclSearchBin->systUp()*inclSearchBin->systUp()   ) /
+		      denom                                                   );
+    }
     // store total uncertainty per histogram bin
     for(int histBin = firstHistBin; histBin <= lastHistBin; ++histBin) {
       const double statDn = scaleDn * sqrt( yields_.at(histBin-1) ); 
