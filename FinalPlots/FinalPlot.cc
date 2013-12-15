@@ -16,8 +16,8 @@
 #include "BackgroundDistribution.h"
 
 
-FinalPlot::FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool lastBinIsOverflow)
-  : var_(var), rebin_(rebin), lastBinIsOverflow_(lastBinIsOverflow) {
+FinalPlot::FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool lastBinIsOverflow, const std::string& outNamePrefix)
+  : var_(var), rebin_(rebin), lastBinIsOverflow_(lastBinIsOverflow), outName_(outNamePrefix+"_"+var) {
 
   hDataOrig_ = static_cast<TH1*>(hData->Clone((var_+"_DataOrig").c_str()));
   hDataDrawn_ = static_cast<TH1*>(hData->Clone((var_+"_Data").c_str()));
@@ -157,10 +157,9 @@ void FinalPlot::draw() const {
 
   gPad->RedrawAxis();
 
-  const std::string outName = "SUS-13-012_Result_"+var_;
-  can->SaveAs((outName+".pdf").c_str());
-  can->SaveAs((outName+".png").c_str());
-  can->SaveAs((outName+".C").c_str());
+  can->SaveAs((outName_+".pdf").c_str());
+  can->SaveAs((outName_+".png").c_str());
+  can->SaveAs((outName_+".C").c_str());
 
   // Clean up
   for(std::vector<TH1*>::iterator it = stack.begin();

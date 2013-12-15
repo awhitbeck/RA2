@@ -14,7 +14,7 @@
 
 class FinalPlot {
 public:
-  FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool lastBinIsOverflow);
+  FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool lastBinIsOverflow, const std::string& outNamePrefix);
   ~FinalPlot();
 
   void addBackground(BackgroundDistribution* bkg);
@@ -26,6 +26,7 @@ private:
   const std::string var_;
   const bool rebin_;
   const bool lastBinIsOverflow_;
+  const std::string outName_;
 
   TH1* hDataOrig_;		// Data histogram
   TH1* hDataDrawn_;	       	// Data histogram with style changes and possibly rebinned
