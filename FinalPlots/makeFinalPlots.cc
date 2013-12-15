@@ -2,6 +2,7 @@
 #include <exception>
 #include <iostream>
 #include <map>
+#include <unistd.h>
 #include <vector>
 
 #include "TColor.h"
@@ -17,18 +18,40 @@
 #include "Style.h"
 
 
+// Get the current working directory
+std::string pwd() {
+  const size_t size = 500;
+  char buffer[size];
+  if( !getcwd(buffer,size) ) {
+    std::cerr << "\n\nERROR finding current working directory" << std::endl;
+    throw std::exception();
+  }
+  std::string dir(buffer);
+
+  return dir;
+}
+
+
 int main() {
   Style::init();
-  const std::string pwd = "/home/matsch/Development/FinalPlots/";
+  const std::string dir(pwd());
 
+  // Paper plot (label 'CMS')?
+  const bool isPaperPlot = true;
+  
   // Define combination mode
-  const std::string mode("NJetsInclusive");
+  //  Baseline          : the default
+  //  AlternativeScheme : same as Baseline but with the alternative MHT combination scheme
+  //  NJets3-5          : NJet exclusive
+  //  NJets6-7          : NJet exclusive
+  //  NJets8-Inf        : NJet exclusive
+  const std::string mode("NJets8-Inf");
 
   // Define plotted variables
   std::vector<std::string> vars;
   vars.push_back("HT");
   vars.push_back("MHT");
-  vars.push_back("NJets");
+  if( mode == "Baseline" || mode == "AlternativeScheme" ) vars.push_back("NJets");
 
   // Define plotted backgrounds
   std::vector<std::string> bkgs;
@@ -37,11 +60,14 @@ int main() {
   bkgs.push_back("HadTau");
   bkgs.push_back("ZInv");
 
+  // Define the out-name prefix
+  const std::string outName = isPaperPlot ? "SUS-13-012_Result_"+mode : "RA2_Result_"+mode;
+
   // Takes care of reading the histograms
-  const HistogramReader hReader(pwd+"/data");
+  const HistogramReader hReader(dir+"/data");
 
   // Takes care of search-bin reading and combination
-  const SearchBinManager binManager(pwd+"/data",bkgs);
+  const SearchBinManager binManager(dir+"/data",bkgs);
 
   // Loop over variables
   for(std::vector<std::string>::const_iterator varIt = vars.begin();
@@ -54,7 +80,7 @@ int main() {
     const TH1* hData = hReader.getHistogram("Data",mode,var);
     const bool rebin = ( var == "HT" ); // Want to go from 50 to 100 GeV bins after scaling
     const bool lastBinIsOverflow = true;
-    FinalPlot* plot = new FinalPlot(var,hData,rebin,lastBinIsOverflow);
+    FinalPlot* plot = new FinalPlot(var,hData,rebin,lastBinIsOverflow,outName);
     delete hData;
   
     // Add backgrounds to plot

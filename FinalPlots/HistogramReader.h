@@ -17,14 +17,14 @@ private:
   std::string dir_;
 
   TH1* getAdjustedHistogram(TH1* h, const std::string &var) const;
-  std::string getFileName(const std::string& id) const;
+  std::string getFileName(const std::string& id, const std::string& mode) const;
   std::string getHistName(const std::string& id, const std::string& mode, const std::string& var) const;
 };
 
 
 TH1* HistogramReader::getHistogram(const std::string &id, const std::string& mode, const std::string &var) const {
 
-  const std::string fileName( getFileName(id) );
+  const std::string fileName( getFileName(id,mode) );
   TFile file(fileName.c_str(),"READ");
   TH1* h = NULL;
   const std::string histName( getHistName(id,mode,var) );
@@ -86,18 +86,39 @@ TH1* HistogramReader::getAdjustedHistogram(TH1* h, const std::string &var) const
 }
 
 
-std::string HistogramReader::getFileName(const std::string& id) const {
+std::string HistogramReader::getFileName(const std::string& id, const std::string& mode) const {
+  if( !( mode=="Baseline" || mode=="AlternativeScheme" || mode=="NJets3-5" || mode=="NJets6-7" || mode=="NJets8-Inf" ) )  {
+    std::cerr << "\n\nERROR when getting histograms from file" << std::endl;
+    std::cerr << "  Unknown mode '" << mode << "'" << std::endl;
+    throw std::exception();
+  }
   std::string fileName(dir_+"/");
   if(      id == "Data" ) {
-    fileName += "SUS-13-012_DataHistogramsBaseline.root";
+    fileName += "SUS-13-012_DataHistograms.root";
   } else if( id == "QCD"  ) {
     fileName += "QCDPrediction_histos.root";
   } else if( id == "LostLepton"  ) {
-    fileName += "lostleptonTH1d.root";
+    if( mode == "Baseline" || mode == "AlternativeScheme" ) {
+      fileName += "lostleptonTH1d.root";
+    } else if( mode == "NJets3-5" ) {
+      fileName += "lostleptonTH1dNJet3-5.root";
+    } else if( mode == "NJets6-7" ) {
+      fileName += "lostleptonTH1dNJet6-7.root";
+    } else if( mode == "NJets8-Inf" ) {
+      fileName += "lostleptonTH1dNJet8-Inf.root";
+    }
   } else if( id == "HadTau"  ) {
-    fileName += "HadTauPrediction_HTMHTNjet_v2.root";
+    if( mode == "Baseline" || mode == "AlternativeScheme" ) {
+      fileName += "HadTauPrediction_HTMHTNjet_v2.root";
+    } else if( mode == "NJets3-5" ) {
+      fileName += "HadTauPrediction_HTMHTNjet_3_5.root";
+    } else if( mode == "NJets6-7" ) {
+      fileName += "HadTauPrediction_HTMHTNjet_6_7.root";
+    } else if( mode == "NJets8-Inf" ) {
+      fileName += "HadTauPrediction_HTMHTNjet_8_up.root";
+    }
   } else if( id == "ZInv"  ) {
-    fileName += "zinvisible_LO_predicted_distributions.root";
+    fileName += "zinvisible_LO_predicted_distributions_full_set.root";
   } else {
     std::cerr << "\n\nERROR when getting histograms from file" << std::endl;
     std::cerr << "  Unknown id '" << id << "'" << std::endl;
@@ -114,7 +135,7 @@ std::string HistogramReader::getHistName(const std::string& id, const std::strin
     std::cerr << "  Unknown variable '" << var << "'" << std::endl;
     throw std::exception();
   }
-  if( !( mode == "NJetsInclusive" ) )  {
+  if( !( mode=="Baseline" || mode=="AlternativeScheme" || mode=="NJets3-5" || mode=="NJets6-7" || mode=="NJets8-Inf" ) )  {
     std::cerr << "\n\nERROR when getting histograms from file" << std::endl;
     std::cerr << "  Unknown mode '" << mode << "'" << std::endl;
     throw std::exception();
@@ -123,34 +144,57 @@ std::string HistogramReader::getHistName(const std::string& id, const std::strin
   std::string histName("");
   
   if(      id == "Data" ) {
-    if( mode == "NJetsInclusive" ) {
-      if(      var == "HT"    ) histName = "hHT";
-      else if( var == "MHT"   ) histName = "hMHT";
-      else if( var == "NJets" ) histName = "hNJets";
+    if( mode == "Baseline" || mode == "AlternativeScheme" ) {
+      if(      var == "HT"    ) histName = "HT_NJetsInclusive";
+      else if( var == "MHT"   ) histName = "MHT_NJetsInclusive";
+      else if( var == "NJets" ) histName = "NJets_NJetsInclusive";
+    } else if( mode == "NJets3-5" ) {
+      if(      var == "HT"    ) histName = "HT_NJets3-5";
+      else if( var == "MHT"   ) histName = "MHT_NJets3-5";
+    } else if( mode == "NJets6-7" ) {
+      if(      var == "HT"    ) histName = "HT_NJets6-7";
+      else if( var == "MHT"   ) histName = "MHT_NJets6-7";
+    } else if( mode == "NJets8-Inf" ) {
+      if(      var == "HT"    ) histName = "HT_NJets8-Inf";
+      else if( var == "MHT"   ) histName = "MHT_NJets8-Inf";
     }
   } else if( id == "QCD"  ) {
-    if( mode == "NJetsInclusive" ) {
-      if(      var == "HT"    ) histName = "HT_baseline_pred_px";
+    if( mode == "Baseline" || mode == "AlternativeScheme" ) {
+      if(      var == "HT"    ) histName = "HT_baseline_pred_px"; 
       else if( var == "MHT"   ) histName = "MHT_baseline_pred_px";
       else if( var == "NJets" ) histName = "NJets_baseline_pred_px";
+    } else if( mode == "NJets3-5" ) {
+      if(      var == "HT"    ) histName = "HT_NJets3To5_pred_px";
+      else if( var == "MHT"   ) histName = "MHT_NJets3To5_pred_px";
+    } else if( mode == "NJets6-7" ) {
+      if(      var == "HT"    ) histName = "HT_NJets6To7_pred_px";
+      else if( var == "MHT"   ) histName = "MHT_NJets6To7_pred_px";
+    } else if( mode == "NJets8-Inf" ) {
+      if(      var == "HT"    ) histName = "HT_NJetsGreater7_pred_px";
+      else if( var == "MHT"   ) histName = "MHT_NJetsGreater7_pred_px";
     }
   } else if( id == "LostLepton"  ) {
-    if( mode == "NJetsInclusive" ) {
-      if(      var == "HT"    ) histName = "LostLepton/HT";
-      else if( var == "MHT"   ) histName = "LostLepton/MHT";
-      else if( var == "NJets" ) histName = "LostLepton/NJet";
-    }
+    if(      var == "HT"    ) histName = "LostLepton/HT";
+    else if( var == "MHT"   ) histName = "LostLepton/MHT";
+    else if( var == "NJets" ) histName = "LostLepton/NJet";
   } else if( id == "HadTau"  ) {
-    if( mode == "NJetsInclusive" ) {
-      if(      var == "HT"    ) histName = "HT_hadtau_baseline_pred";
-      else if( var == "MHT"   ) histName = "MHT_hadtau_baseline_pred";
-      else if( var == "NJets" ) histName = "NJets_hadtau_baseline_pred";
-    }
+    if(      var == "HT"    ) histName = "HT_hadtau_baseline_pred";
+    else if( var == "MHT"   ) histName = "MHT_hadtau_baseline_pred";
+    else if( var == "NJets" ) histName = "NJets_hadtau_baseline_pred";
   } else if( id == "ZInv"  ) {
-    if( mode == "NJetsInclusive" ) {
-      if(      var == "HT"    ) histName = "htPlot";
-      else if( var == "MHT"   ) histName = "mhtPlot";
-      else if( var == "NJets" ) histName = "nJetsPlot";
+    if( mode == "Baseline" || mode == "AlternativeScheme" ) {
+      if(      var == "HT"    ) histName = "htPlot_inclusive";
+      else if( var == "MHT"   ) histName = "mhtPlot_inclusive";
+      else if( var == "NJets" ) histName = "nJetsPlot_inclusive";
+    } else if( mode == "NJets3-5" ) {
+      if(      var == "HT"    ) histName = "htPlot_3to5";
+      else if( var == "MHT"   ) histName = "mhtPlot_3to5";
+    } else if( mode == "NJets6-7" ) {
+      if(      var == "HT"    ) histName = "htPlot_6to7";
+      else if( var == "MHT"   ) histName = "mhtPlot_6to7";
+    } else if( mode == "NJets8-Inf" ) {
+      if(      var == "HT"    ) histName = "htPlot_8plus";
+      else if( var == "MHT"   ) histName = "mhtPlot_8plus";
     }
   } else {
     std::cerr << "\n\nERROR when getting histograms from file" << std::endl;

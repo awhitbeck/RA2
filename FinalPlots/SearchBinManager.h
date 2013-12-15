@@ -10,6 +10,7 @@
 
 
 // Takes care of search-bin reading and combination
+// This is where the magic is hidden...
 class SearchBinManager {
 public:
   SearchBinManager(const std::string& dir, const std::vector<std::string>& bkgs);
@@ -71,6 +72,11 @@ std::vector<SearchBin*> SearchBinManager::readSearchBins(const std::string &id) 
 
 std::vector<InclusiveSearchBin*> SearchBinManager::getInclusiveSearchBins(const std::string &var, const std::string& mode, const std::string& bkg) const {
 
+  if( !( var == "HT" || var == "MHT" || var == "NJets" ) ) {
+    std::cerr << "\n\nERROR when creating inclusive search bins" << std::endl;
+    std::cerr << "  Unknown variable '" << var << "'" << std::endl;
+    throw std::exception();
+  }
   // Retrieve individual search bins for background
   std::map< std::string, std::vector<SearchBin*> >::const_iterator mit = searchBinsForBkgs_.find(bkg);
   if( mit == searchBinsForBkgs_.end() ) {
@@ -83,7 +89,7 @@ std::vector<InclusiveSearchBin*> SearchBinManager::getInclusiveSearchBins(const 
 
   std::vector<InclusiveSearchBin*> inclBins;
 
-  if( mode == "NJetsInclusive" ) {
+  if( mode == "Baseline" || mode == "AlternativeScheme" ) {
     if( var == "HT" ) {
       // 500 < HT < 800
       inclBins.push_back(new InclusiveSearchBin(var,500.,800.));
@@ -136,7 +142,7 @@ std::vector<InclusiveSearchBin*> SearchBinManager::getInclusiveSearchBins(const 
       inclBins.back()->addSearchBin(searchBins.at(30));
       inclBins.back()->addSearchBin(searchBins.at(35));
 
-    } else   if( var == "MHT" ) {
+    } else if( var == "MHT" && mode == "Baseline" ) {
       // 200 < MHT < 300
       inclBins.push_back(new InclusiveSearchBin(var,200.,300.));
       inclBins.back()->addSearchBin(searchBins.at(0));
@@ -168,13 +174,6 @@ std::vector<InclusiveSearchBin*> SearchBinManager::getInclusiveSearchBins(const 
       inclBins.back()->addSearchBin(searchBins.at(27));
       inclBins.back()->addSearchBin(searchBins.at(30));
 
-      // inclBins.back()->addSearchBin(searchBins.at(31));
-      // inclBins.back()->addSearchBin(searchBins.at(32));
-      // inclBins.back()->addSearchBin(searchBins.at(33));
-      // inclBins.back()->addSearchBin(searchBins.at(34));
-      // inclBins.back()->addSearchBin(searchBins.at(35));
-
-
       // 450 < MHT < 600
       inclBins.push_back(new InclusiveSearchBin(var,450.,600.));
       inclBins.back()->addSearchBin(searchBins.at(2));
@@ -186,20 +185,72 @@ std::vector<InclusiveSearchBin*> SearchBinManager::getInclusiveSearchBins(const 
       inclBins.back()->addSearchBin(searchBins.at(25));
       inclBins.back()->addSearchBin(searchBins.at(28));
 
-      // inclBins.back()->addSearchBin(searchBins.at(16));
-      // inclBins.back()->addSearchBin(searchBins.at(30));
-
       // MHT > 600
       inclBins.push_back(new InclusiveSearchBin(var,600.,9999.));
       inclBins.back()->addSearchBin(searchBins.at(3));
       inclBins.back()->addSearchBin(searchBins.at(7));
       inclBins.back()->addSearchBin(searchBins.at(11));
 
-      // inclBins.back()->addSearchBin(searchBins.at(14));
-      // inclBins.back()->addSearchBin(searchBins.at(19));
-      // inclBins.back()->addSearchBin(searchBins.at(22));
-      // inclBins.back()->addSearchBin(searchBins.at(25));
-      // inclBins.back()->addSearchBin(searchBins.at(28));
+    } else if( var == "MHT" && mode == "AlternativeScheme" ) {
+      // 200 < MHT < 300
+      inclBins.push_back(new InclusiveSearchBin(var,200.,300.));
+      inclBins.back()->addSearchBin(searchBins.at(0));
+      inclBins.back()->addSearchBin(searchBins.at(4));
+      inclBins.back()->addSearchBin(searchBins.at(8));
+      inclBins.back()->addSearchBin(searchBins.at(12));
+      inclBins.back()->addSearchBin(searchBins.at(15));
+      inclBins.back()->addSearchBin(searchBins.at(17));
+      inclBins.back()->addSearchBin(searchBins.at(20));
+      inclBins.back()->addSearchBin(searchBins.at(23));
+      inclBins.back()->addSearchBin(searchBins.at(26));
+      inclBins.back()->addSearchBin(searchBins.at(29));
+      inclBins.back()->addSearchBin(searchBins.at(31));
+      inclBins.back()->addSearchBin(searchBins.at(32));
+      inclBins.back()->addSearchBin(searchBins.at(33));
+      inclBins.back()->addSearchBin(searchBins.at(34));
+      inclBins.back()->addSearchBin(searchBins.at(35));
+
+      // 300 < MHT < 450
+      inclBins.push_back(new InclusiveSearchBin(var,300.,450.));
+      inclBins.back()->addSearchBin(searchBins.at(1));
+      inclBins.back()->addSearchBin(searchBins.at(5));
+      inclBins.back()->addSearchBin(searchBins.at(9));
+      inclBins.back()->addSearchBin(searchBins.at(13));
+      inclBins.back()->addSearchBin(searchBins.at(16));
+      inclBins.back()->addSearchBin(searchBins.at(18));
+      inclBins.back()->addSearchBin(searchBins.at(21));
+      inclBins.back()->addSearchBin(searchBins.at(24));
+      inclBins.back()->addSearchBin(searchBins.at(27));
+      inclBins.back()->addSearchBin(searchBins.at(30));
+      inclBins.back()->addSearchBin(searchBins.at(31));
+      inclBins.back()->addSearchBin(searchBins.at(32));
+      inclBins.back()->addSearchBin(searchBins.at(33));
+      inclBins.back()->addSearchBin(searchBins.at(34));
+      inclBins.back()->addSearchBin(searchBins.at(35));
+
+      // 450 < MHT < 600
+      inclBins.push_back(new InclusiveSearchBin(var,450.,600.));
+      inclBins.back()->addSearchBin(searchBins.at(2));
+      inclBins.back()->addSearchBin(searchBins.at(6));
+      inclBins.back()->addSearchBin(searchBins.at(10));
+      inclBins.back()->addSearchBin(searchBins.at(14));
+      inclBins.back()->addSearchBin(searchBins.at(19));
+      inclBins.back()->addSearchBin(searchBins.at(22));
+      inclBins.back()->addSearchBin(searchBins.at(25));
+      inclBins.back()->addSearchBin(searchBins.at(28));
+      inclBins.back()->addSearchBin(searchBins.at(16));
+      inclBins.back()->addSearchBin(searchBins.at(30));
+
+      // MHT > 600
+      inclBins.push_back(new InclusiveSearchBin(var,600.,9999.));
+      inclBins.back()->addSearchBin(searchBins.at(3));
+      inclBins.back()->addSearchBin(searchBins.at(7));
+      inclBins.back()->addSearchBin(searchBins.at(11));
+      inclBins.back()->addSearchBin(searchBins.at(14));
+      inclBins.back()->addSearchBin(searchBins.at(19));
+      inclBins.back()->addSearchBin(searchBins.at(22));
+      inclBins.back()->addSearchBin(searchBins.at(25));
+      inclBins.back()->addSearchBin(searchBins.at(28));
 
     } else  if( var == "NJets" ) {
       // 3 <= NJets <= 5
@@ -220,17 +271,179 @@ std::vector<InclusiveSearchBin*> SearchBinManager::getInclusiveSearchBins(const 
 	inclBins.back()->addSearchBin(searchBins.at(i));
       }
 
-    } else {
-      std::cerr << "\n\nERROR when creating inclusive search bins" << std::endl;
-      std::cerr << "  Unknown variable '" << var << "'" << std::endl;
-      throw std::exception();
     }
+
+  } else if( mode == "NJets3-5" ) {
+    if( var == "HT" ) {
+      // 500 < HT < 800
+      inclBins.push_back(new InclusiveSearchBin(var,500.,800.));
+      inclBins.back()->addSearchBin(searchBins.at(0));
+      inclBins.back()->addSearchBin(searchBins.at(1));
+      inclBins.back()->addSearchBin(searchBins.at(2));
+      inclBins.back()->addSearchBin(searchBins.at(3));
+    
+      // 800 < HT < 1000
+      inclBins.push_back(new InclusiveSearchBin(var,800.,1000.));
+      inclBins.back()->addSearchBin(searchBins.at(4));
+      inclBins.back()->addSearchBin(searchBins.at(5));
+      inclBins.back()->addSearchBin(searchBins.at(6));
+      inclBins.back()->addSearchBin(searchBins.at(7));
+    
+      // 1000 < HT < 1250
+      inclBins.push_back(new InclusiveSearchBin(var,1000.,1250.));
+      inclBins.back()->addSearchBin(searchBins.at(8));
+      inclBins.back()->addSearchBin(searchBins.at(9));
+      inclBins.back()->addSearchBin(searchBins.at(10));
+      inclBins.back()->addSearchBin(searchBins.at(11));
+
+      // 1250 < HT < 1500
+      inclBins.push_back(new InclusiveSearchBin(var,1250.,1500.));
+      inclBins.back()->addSearchBin(searchBins.at(12));
+      inclBins.back()->addSearchBin(searchBins.at(13));
+      inclBins.back()->addSearchBin(searchBins.at(14));
+
+      // HT > 1500
+      inclBins.push_back(new InclusiveSearchBin(var,1500.,99999.));
+      inclBins.back()->addSearchBin(searchBins.at(15));
+      inclBins.back()->addSearchBin(searchBins.at(16));
+
+    } else   if( var == "MHT" ) {
+      // 200 < MHT < 300
+      inclBins.push_back(new InclusiveSearchBin(var,200.,300.));
+      inclBins.back()->addSearchBin(searchBins.at(0));
+      inclBins.back()->addSearchBin(searchBins.at(4));
+      inclBins.back()->addSearchBin(searchBins.at(8));
+      inclBins.back()->addSearchBin(searchBins.at(12));
+      inclBins.back()->addSearchBin(searchBins.at(15));
+
+      // 300 < MHT < 450
+      inclBins.push_back(new InclusiveSearchBin(var,300.,450.));
+      inclBins.back()->addSearchBin(searchBins.at(1));
+      inclBins.back()->addSearchBin(searchBins.at(5));
+      inclBins.back()->addSearchBin(searchBins.at(9));
+      inclBins.back()->addSearchBin(searchBins.at(13));
+      inclBins.back()->addSearchBin(searchBins.at(16));
+
+      // 450 < MHT < 600
+      inclBins.push_back(new InclusiveSearchBin(var,450.,600.));
+      inclBins.back()->addSearchBin(searchBins.at(2));
+      inclBins.back()->addSearchBin(searchBins.at(6));
+      inclBins.back()->addSearchBin(searchBins.at(10));
+      inclBins.back()->addSearchBin(searchBins.at(14));
+      inclBins.back()->addSearchBin(searchBins.at(16));
+
+      // MHT > 600
+      inclBins.push_back(new InclusiveSearchBin(var,600.,9999.));
+      inclBins.back()->addSearchBin(searchBins.at(3));
+      inclBins.back()->addSearchBin(searchBins.at(7));
+      inclBins.back()->addSearchBin(searchBins.at(11));
+      inclBins.back()->addSearchBin(searchBins.at(14));
+    }
+
+  } else if( mode == "NJets6-7" ) {
+    if( var == "HT" ) {
+      // 500 < HT < 800
+      inclBins.push_back(new InclusiveSearchBin(var,500.,800.));
+      inclBins.back()->addSearchBin(searchBins.at(17));
+      inclBins.back()->addSearchBin(searchBins.at(18));
+      inclBins.back()->addSearchBin(searchBins.at(19));
+    
+      // 800 < HT < 1000
+      inclBins.push_back(new InclusiveSearchBin(var,800.,1000.));
+      inclBins.back()->addSearchBin(searchBins.at(20));
+      inclBins.back()->addSearchBin(searchBins.at(21));
+      inclBins.back()->addSearchBin(searchBins.at(22));
+    
+      // 1000 < HT < 1250
+      inclBins.push_back(new InclusiveSearchBin(var,1000.,1250.));
+      inclBins.back()->addSearchBin(searchBins.at(23));
+      inclBins.back()->addSearchBin(searchBins.at(24));
+      inclBins.back()->addSearchBin(searchBins.at(25));
+
+      // 1250 < HT < 1500
+      inclBins.push_back(new InclusiveSearchBin(var,1250.,1500.));
+      inclBins.back()->addSearchBin(searchBins.at(26));
+      inclBins.back()->addSearchBin(searchBins.at(27));
+      inclBins.back()->addSearchBin(searchBins.at(28));
+
+      // HT > 1500
+      inclBins.push_back(new InclusiveSearchBin(var,1500.,99999.));
+      inclBins.back()->addSearchBin(searchBins.at(29));
+      inclBins.back()->addSearchBin(searchBins.at(30));
+
+    } else   if( var == "MHT" ) {
+      // 200 < MHT < 300
+      inclBins.push_back(new InclusiveSearchBin(var,200.,300.));
+      inclBins.back()->addSearchBin(searchBins.at(17));
+      inclBins.back()->addSearchBin(searchBins.at(20));
+      inclBins.back()->addSearchBin(searchBins.at(23));
+      inclBins.back()->addSearchBin(searchBins.at(26));
+      inclBins.back()->addSearchBin(searchBins.at(29));
+
+      // 300 < MHT < 450
+      inclBins.push_back(new InclusiveSearchBin(var,300.,450.));
+      inclBins.back()->addSearchBin(searchBins.at(18));
+      inclBins.back()->addSearchBin(searchBins.at(21));
+      inclBins.back()->addSearchBin(searchBins.at(24));
+      inclBins.back()->addSearchBin(searchBins.at(27));
+      inclBins.back()->addSearchBin(searchBins.at(30));
+
+      // 450 < MHT < 600
+      inclBins.push_back(new InclusiveSearchBin(var,450.,600.));
+      inclBins.back()->addSearchBin(searchBins.at(19));
+      inclBins.back()->addSearchBin(searchBins.at(22));
+      inclBins.back()->addSearchBin(searchBins.at(25));
+      inclBins.back()->addSearchBin(searchBins.at(28));
+      inclBins.back()->addSearchBin(searchBins.at(30));
+
+      // MHT > 600
+      inclBins.push_back(new InclusiveSearchBin(var,600.,9999.));
+      inclBins.back()->addSearchBin(searchBins.at(19));
+      inclBins.back()->addSearchBin(searchBins.at(22));
+      inclBins.back()->addSearchBin(searchBins.at(25));
+      inclBins.back()->addSearchBin(searchBins.at(28));
+    }
+    
+  } else if( mode == "NJets8-Inf" ) {
+      
+      if( var == "HT" ) {
+	// 500 < HT < 800
+      inclBins.push_back(new InclusiveSearchBin(var,500.,800.));
+      inclBins.back()->addSearchBin(searchBins.at(31));
+    
+      // 800 < HT < 1000
+      inclBins.push_back(new InclusiveSearchBin(var,800.,1000.));
+      inclBins.back()->addSearchBin(searchBins.at(32));
+    
+      // 1000 < HT < 1250
+      inclBins.push_back(new InclusiveSearchBin(var,1000.,1250.));
+      inclBins.back()->addSearchBin(searchBins.at(33));
+
+      // 1250 < HT < 1500
+      inclBins.push_back(new InclusiveSearchBin(var,1250.,1500.));
+      inclBins.back()->addSearchBin(searchBins.at(34));
+
+      // HT > 1500
+      inclBins.push_back(new InclusiveSearchBin(var,1500.,99999.));
+      inclBins.back()->addSearchBin(searchBins.at(35));
+
+    } else   if( var == "MHT" ) {
+      // MHT > 200
+      inclBins.push_back(new InclusiveSearchBin(var,200.,99999.));
+      inclBins.back()->addSearchBin(searchBins.at(31));
+      inclBins.back()->addSearchBin(searchBins.at(32));
+      inclBins.back()->addSearchBin(searchBins.at(33));
+      inclBins.back()->addSearchBin(searchBins.at(34));
+      inclBins.back()->addSearchBin(searchBins.at(35));
+
+      }
+
   } else {
     std::cerr << "\n\nERROR when combining search bins" << std::endl;
     std::cerr << "  Unknown mode '" << mode << "'" << std::endl;
     throw std::exception();
   }
-
+  
   return inclBins;
 }
 
