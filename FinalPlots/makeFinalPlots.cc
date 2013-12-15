@@ -32,20 +32,9 @@ std::string pwd() {
 }
 
 
-int main() {
+void makeFinalPlots(const std::string& mode, bool isPaperPlot) {
   Style::init();
   const std::string dir(pwd());
-
-  // Paper plot (label 'CMS')?
-  const bool isPaperPlot = true;
-  
-  // Define combination mode
-  //  Baseline          : the default
-  //  AlternativeScheme : same as Baseline but with the alternative MHT combination scheme
-  //  NJets3-5          : NJet exclusive
-  //  NJets6-7          : NJet exclusive
-  //  NJets8-Inf        : NJet exclusive
-  const std::string mode("NJets8-Inf");
 
   // Define plotted variables
   std::vector<std::string> vars;
@@ -60,8 +49,21 @@ int main() {
   bkgs.push_back("HadTau");
   bkgs.push_back("ZInv");
 
-  // Define the out-name prefix
+  // The out-name prefix
   const std::string outName = isPaperPlot ? "SUS-13-012_Result_"+mode : "RA2_Result_"+mode;
+
+  // The histogram title
+  std::vector<std::string> title;
+  if(         mode == "NJets3-5") {
+    title.push_back("3 #leq N_{Jets}#leq 5");
+  } else  if( mode == "NJets6-7") {
+    title.push_back("6 #leq N_{Jets}#leq 7");
+  } else  if( mode == "NJets8-Inf") {
+    title.push_back("N_{Jets}#geq 8");
+  } else {
+    title.push_back("N_{Jets}#geq 3");
+  }
+  title.back() += ",  H_{T}> 500 GeV,  #slash{H}_{T}> 200 GeV";
 
   // Takes care of reading the histograms
   const HistogramReader hReader(dir+"/data");
@@ -81,6 +83,7 @@ int main() {
     const bool rebin = ( var == "HT" ); // Want to go from 50 to 100 GeV bins after scaling
     const bool lastBinIsOverflow = true;
     FinalPlot* plot = new FinalPlot(var,hData,rebin,lastBinIsOverflow,outName);
+    plot->setTitle(title);
     delete hData;
   
     // Add backgrounds to plot
@@ -120,6 +123,17 @@ int main() {
     delete plot;
     
   } // End of loop over the histogram variables
+}
+
+
+int main() {
+  const bool isPaperPlot = true; // Paper plot (label 'CMS')?
   
+  makeFinalPlots("Baseline",isPaperPlot);	// the default NJets inclusive plots
+  makeFinalPlots("NJets3-5",isPaperPlot);
+  makeFinalPlots("NJets6-7",isPaperPlot);
+  makeFinalPlots("NJets8-Inf",isPaperPlot);
+  //  makeFinalPlots("AlternativeScheme",isPaperPlot); // same as Baseline but with the alternative MHT combination scheme
+
   return 0;
 }
