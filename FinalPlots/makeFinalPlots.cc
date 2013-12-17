@@ -54,6 +54,10 @@ void makeFinalPlots(const std::string& mode, bool isPaperPlot) {
 
   // The histogram title
   std::vector<std::string> title;
+  title.push_back("L = 19.5 fb^{-1},  #sqrt{s} = 8 TeV");
+  if( isPaperPlot ) {
+    title.back() = "CMS,  "+title.back();
+  }
   if(         mode == "NJets3-5") {
     title.push_back("3 #leq N_{Jets}#leq 5");
   } else  if( mode == "NJets6-7") {
@@ -130,9 +134,9 @@ int main() {
   const bool isPaperPlot = true; // Paper plot (label 'CMS')?
   
   makeFinalPlots("Baseline",isPaperPlot);	// the default NJets inclusive plots
-  makeFinalPlots("NJets3-5",isPaperPlot);
-  makeFinalPlots("NJets6-7",isPaperPlot);
-  makeFinalPlots("NJets8-Inf",isPaperPlot);
+  // makeFinalPlots("NJets3-5",isPaperPlot);
+  // makeFinalPlots("NJets6-7",isPaperPlot);
+  // makeFinalPlots("NJets8-Inf",isPaperPlot);
   //  makeFinalPlots("AlternativeScheme",isPaperPlot); // same as Baseline but with the alternative MHT combination scheme
 
   return 0;

@@ -14,6 +14,7 @@
 
 #include "FinalPlot.h"
 #include "BackgroundDistribution.h"
+#include "Style.h"
 
 
 FinalPlot::FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool lastBinIsOverflow, const std::string& outNamePrefix)
@@ -24,6 +25,7 @@ FinalPlot::FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool 
   if( rebin_ ) this->rebin(hDataDrawn_,"histogram");
   hDataDrawn_->UseCurrentStyle();
   hDataDrawn_->SetMarkerStyle(20);
+  hDataDrawn_->SetMarkerSize(Style::markerSize());
   hDataDrawn_->SetLineWidth(2);
   hDataDrawn_->GetYaxis()->SetTitle("Events");
   if(      var_ == "HT"    ) hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,9E4);
@@ -94,14 +96,14 @@ void FinalPlot::setTitle(const std::vector<std::string>& lines) {
   // Create histogram title
   delete title_;
   title_ = new TPaveText(gStyle->GetPadLeftMargin(),
-			 1.-gStyle->GetPadRightMargin(),
 			 1.-gStyle->GetPadTopMargin()+0.01,
+			 1.-gStyle->GetPadRightMargin(),
 			 1.,"NDC");
   title_->SetBorderSize(0);
   title_->SetFillColor(0);
   title_->SetTextFont(42);
   title_->SetTextAlign(12);
-  title_->SetTextSize(0.044);
+  title_->SetTextSize(0.039);
   title_->SetMargin(0.);
   for(std::vector<std::string>::const_iterator it = lines.begin();
       it != lines.end(); ++it) {

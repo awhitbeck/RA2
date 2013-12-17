@@ -15,7 +15,7 @@ makeFinalPlots: $(OBJ)
 BackgroundDistribution.o: BackgroundDistribution.h BackgroundDistribution.cc InclusiveSearchBin.h
 	g++ $(CFLAG) -c BackgroundDistribution.cc
 
-FinalPlot.o: FinalPlot.h FinalPlot.cc BackgroundDistribution.h
+FinalPlot.o: FinalPlot.h FinalPlot.cc BackgroundDistribution.h Style.h
 	g++ $(CFLAG) -c FinalPlot.cc
 
 InclusiveSearchBin.o: InclusiveSearchBin.h InclusiveSearchBin.cc SearchBin.h
