@@ -3,32 +3,38 @@
 
 #include <string>
 #include "TH1.h"
+#include "TString.h"
 
 
 class HistogramReader {
 public:
   HistogramReader(const std::string& dir)
-    : dir_(dir) {};
+    : dir_(dir.c_str()) {};
 
   TH1* getHistogram(const std::string &id, const std::string& mode, const std::string &var) const;
 
 
 private:
-  std::string dir_;
+  TString dir_;
 
   TH1* getAdjustedHistogram(TH1* h, const std::string &var) const;
-  std::string getFileName(const std::string& id, const std::string& mode) const;
-  std::string getHistName(const std::string& id, const std::string& mode, const std::string& var) const;
+  TH1* splitBinning(const TH1* h) const;
+  TString getFileName(const std::string& id, const std::string& mode) const;
+  TString getHistName(const std::string& id, const std::string& mode, const std::string& var) const;
+  TString findMassId(const std::string& id) const;
+  void normSignal(TFile& file, const TString& histName, TH1* h) const;
+  void splitAtLast(const TString& str, const char c, TString& str1, TString& str2) const;
+  bool isSignal(const std::string& id) const;
 };
 
 
 TH1* HistogramReader::getHistogram(const std::string &id, const std::string& mode, const std::string &var) const {
 
-  const std::string fileName( getFileName(id,mode) );
-  TFile file(fileName.c_str(),"READ");
+  const TString fileName( getFileName(id,mode) );
+  TFile file(fileName,"READ");
   TH1* h = NULL;
-  const std::string histName( getHistName(id,mode,var) );
-  file.GetObject(histName.c_str(),h);
+  const TString histName( getHistName(id,mode,var) );
+  file.GetObject(histName,h);
   if( h == NULL ) {
     std::cerr << "\n\nERROR when getting '" << var << "' histograms from file" << std::endl;
     std::cerr << "  Histogram '" << histName << "' not found" << std::endl;
@@ -36,21 +42,56 @@ TH1* HistogramReader::getHistogram(const std::string &id, const std::string& mod
   }
   h->SetDirectory(0);
   h->SetName(("h"+var+"_"+id).c_str());
-  file.Close();
+
   // scale had-tau
   if( id == "HadTau" ) h->Scale(h->GetBinWidth(1));
+
+  // scale signal
+  if( isSignal(id) ) normSignal(file,histName,h);
+
+  file.Close();
+
+  if( isSignal(id) && var == "HT" ) {		// Signal HT plots are in 100 GeV binning only
+    TH1* hNew = splitBinning(h);
+    const TString nameOrig( h->GetName() );
+    delete h;
+    h = hNew;
+    h->SetName( nameOrig );
+  }
+
+  // pick out interesting x-range and fill overflow bin
   TH1* hAdjusted = getAdjustedHistogram(h,var);
+  const TString nameOrig( h->GetName() );
   delete h;
+  hAdjusted->SetName(nameOrig);
 
   return hAdjusted;
 }
 
 
+// Artificially histogram to to half the bin size (intended for signal HT distribution)
+TH1* HistogramReader::splitBinning(const TH1* h) const {
+  const double nBinsOrig = h->GetNbinsX();
+  const double minOrig = h->GetXaxis()->GetBinLowEdge(1);
+  const double maxOrig = h->GetXaxis()->GetBinUpEdge(h->GetNbinsX());
+  const TString nameOrig( h->GetName() );
+  TH1* hNew = new TH1D(nameOrig+":split","",2*nBinsOrig,minOrig,maxOrig);
+  for(int bin = 1; bin <= h->GetNbinsX(); ++bin) {
+    int newBin = 2*bin-1;
+    hNew->SetBinContent(newBin,h->GetBinContent(bin));
+    //std::cout << bin << "(" << h->GetXaxis()->GetBinLowEdge(bin) << "-" << h->GetXaxis()->GetBinUpEdge(bin) << ") -->" << newBin << "(" << hNew->GetXaxis()->GetBinLowEdge(newBin) << "-" << hNew->GetXaxis()->GetBinUpEdge(newBin) << ") : " << h->GetBinContent(bin) << std::endl;
+  }
+  
+  return hNew;
+}
+
+
 TH1* HistogramReader::getAdjustedHistogram(TH1* h, const std::string &var) const {
+  const TString nameOrig( h->GetName() );
   TH1* hNew = NULL;
-  if(      var == "HT"    )  hNew = new TH1D(h->GetName(),"",45,500,2750);
-  else if( var == "MHT"   )  hNew = new TH1D(h->GetName(),"",19,200,1150);
-  else if( var == "NJets" )  hNew = new TH1D(h->GetName(),"",8,2.5,10.5);
+  if(      var == "HT"    )  hNew = new TH1D(nameOrig+":adjusted","",45,500,2750);
+  else if( var == "MHT"   )  hNew = new TH1D(nameOrig+":adjusted","",19,200,1150);
+  else if( var == "NJets" )  hNew = new TH1D(nameOrig+":adjusted","",8,2.5,10.5);
   const int lastBin = hNew->GetNbinsX();
   for(int bin = 1; bin <= lastBin; ++bin) {
     const int origBin = h->FindBin(hNew->GetBinCenter(bin));
@@ -86,13 +127,13 @@ TH1* HistogramReader::getAdjustedHistogram(TH1* h, const std::string &var) const
 }
 
 
-std::string HistogramReader::getFileName(const std::string& id, const std::string& mode) const {
+TString HistogramReader::getFileName(const std::string& id, const std::string& mode) const {
   if( !( mode=="Baseline" || mode=="AlternativeScheme" || mode=="NJets3-5" || mode=="NJets6-7" || mode=="NJets8-Inf" ) )  {
     std::cerr << "\n\nERROR when getting histograms from file" << std::endl;
     std::cerr << "  Unknown mode '" << mode << "'" << std::endl;
     throw std::exception();
   }
-  std::string fileName(dir_+"/");
+  TString fileName(dir_+"/");
   if(      id == "Data" ) {
     fileName += "SUS-13-012_DataHistograms.root";
   } else if( id == "QCD"  ) {
@@ -119,6 +160,10 @@ std::string HistogramReader::getFileName(const std::string& id, const std::strin
     }
   } else if( id == "ZInv"  ) {
     fileName += "zinvisible_LO_predicted_distributions_full_set.root";
+  } else if( id.find("T1qqqq") != std::string::npos ) {
+    fileName += "SignalHistograms_T1qqqqMG.root";
+  } else if( id.find("T1tttt") != std::string::npos ) {
+    fileName += "SignalHistograms_T1ttttMG.root";
   } else {
     std::cerr << "\n\nERROR when getting histograms from file" << std::endl;
     std::cerr << "  Unknown id '" << id << "'" << std::endl;
@@ -129,7 +174,7 @@ std::string HistogramReader::getFileName(const std::string& id, const std::strin
 }
 
 
-std::string HistogramReader::getHistName(const std::string& id, const std::string& mode, const std::string& var) const {
+TString HistogramReader::getHistName(const std::string& id, const std::string& mode, const std::string& var) const {
   if( !( var == "HT" || var == "MHT" || var == "NJets" ) ) {
     std::cerr << "\n\nERROR when getting histograms from file" << std::endl;
     std::cerr << "  Unknown variable '" << var << "'" << std::endl;
@@ -141,7 +186,7 @@ std::string HistogramReader::getHistName(const std::string& id, const std::strin
     throw std::exception();
   }
   
-  std::string histName("");
+  TString histName("");
   
   if(      id == "Data" ) {
     if( mode == "Baseline" || mode == "AlternativeScheme" ) {
@@ -196,6 +241,24 @@ std::string HistogramReader::getHistName(const std::string& id, const std::strin
       if(      var == "HT"    ) histName = "htPlot_8plus";
       else if( var == "MHT"   ) histName = "mhtPlot_8plus";
     }
+
+  } else if( isSignal(id) ) {
+    // parse for mass values
+    histName = "SigHists/h_" + findMassId(id) + "_HT500MHT200_";
+    if( mode == "Baseline" || mode == "AlternativeScheme" ) {
+      if(      var == "HT"    ) histName += "HT";
+      else if( var == "MHT"   ) histName += "MHT";
+      else if( var == "NJets" ) histName += "NJets";
+    } else if( mode == "NJets3-5" ) {
+      if(      var == "HT"    ) histName += "HT_3Jets5";
+      else if( var == "MHT"   ) histName += "MHT_3Jets5";
+    } else if( mode == "NJets6-7" ) {
+      if(      var == "HT"    ) histName += "HT_6Jets7";
+      else if( var == "MHT"   ) histName += "MHT_6Jets7";
+    } else if( mode == "NJets8-Inf" ) {
+      if(      var == "HT"    ) histName += "HT_8JetsX";
+      else if( var == "MHT"   ) histName += "MHT_8JetsX";
+    }
   } else {
     std::cerr << "\n\nERROR when getting histograms from file" << std::endl;
     std::cerr << "  Unknown id '" << id << "'" << std::endl;
@@ -205,4 +268,52 @@ std::string HistogramReader::getHistName(const std::string& id, const std::strin
   return histName;
 }
 
+
+TString HistogramReader::findMassId(const std::string& id) const {
+  const TString str(id);
+  const size_t pos = str.First(":") + 1;
+  const size_t len = str.Length()-pos;
+  
+  return str(pos,len);
+}
+
+
+void HistogramReader::normSignal(TFile& file, const TString& histName, TH1* h) const {
+  TString name(histName);
+  TString part1;
+  TString part2;
+  splitAtLast(name,'_',part1,part2);
+  if( !( part2 == "HT" || part2 == "MHT" || part2 == "NJets" ) ) {
+    name = part1;
+    splitAtLast(name,'_',part1,part2);
+  }
+  name = part1 + "_Total";
+  std::cout << "  norm signal : " << histName << " : " << name << std::endl;
+  TH1* hNorm = NULL;
+  file.GetObject(name,hNorm);
+  if( hNorm == NULL ) {
+    std::cerr << "\n\nERROR when normalising signal histogram '" << h->GetName() << "'" << std::endl;
+    std::cerr << "  Histogram '" << name << "' not found" << std::endl;
+    throw std::exception();
+  }
+  hNorm->SetDirectory(0);
+  const double norm = hNorm->GetEntries();
+  if( norm > 0. ) h->Scale(1./norm);
+}
+
+
+void HistogramReader::splitAtLast(const TString& str, const char c, TString& str1, TString& str2) const {
+  size_t pos = str.Last(c);
+  str1 = str(0,pos);
+  str2 = str(pos+1,str.Length()-pos);
+}
+
+
+bool HistogramReader::isSignal(const std::string& id) const {
+  bool result = false;
+  if(      id.find("T1qqqq") != std::string::npos ) result = true;
+  else if( id.find("T1tttt") != std::string::npos ) result = true;
+
+  return result;
+}
 #endif

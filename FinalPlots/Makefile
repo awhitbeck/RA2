@@ -1,10 +1,10 @@
 ROOTLIBS   = $(shell root-config --libs)
 ROOTCFLAGS = $(shell root-config --cflags)
 
-CFLAG      = -I $(ROOTCFLAGS)
+CFLAG      = $(ROOTCFLAGS)
 LFLAG      = $(ROOTLIBS)
 
-OBJ     = BackgroundDistribution.o FinalPlot.o InclusiveSearchBin.o SearchBin.o makeFinalPlots.o
+OBJ     = BackgroundDistribution.o FinalPlot.o InclusiveSearchBin.o SearchBin.o SignalDistribution.o TwoColumnLegend.o makeFinalPlots.o
 
 
 
@@ -15,7 +15,7 @@ makeFinalPlots: $(OBJ)
 BackgroundDistribution.o: BackgroundDistribution.h BackgroundDistribution.cc InclusiveSearchBin.h
 	g++ $(CFLAG) -c BackgroundDistribution.cc
 
-FinalPlot.o: FinalPlot.h FinalPlot.cc BackgroundDistribution.h Style.h
+FinalPlot.o: FinalPlot.h FinalPlot.cc BackgroundDistribution.h SignalDistribution.h Style.h TwoColumnLegend.h
 	g++ $(CFLAG) -c FinalPlot.cc
 
 InclusiveSearchBin.o: InclusiveSearchBin.h InclusiveSearchBin.cc SearchBin.h
@@ -24,7 +24,13 @@ InclusiveSearchBin.o: InclusiveSearchBin.h InclusiveSearchBin.cc SearchBin.h
 SearchBin.o: SearchBin.h SearchBin.cc StringParser.h
 	g++ $(CFLAG) -c SearchBin.cc
 
-makeFinalPlots.o: makeFinalPlots.cc BackgroundDistribution.h InclusiveSearchBin.h FinalPlot.h SearchBin.h Style.h HistogramReader.h SearchBinManager.h
+SignalDistribution.o: SignalDistribution.h SignalDistribution.cc
+	g++ $(CFLAG) -c SignalDistribution.cc
+
+TwoColumnLegend.o: TwoColumnLegend.h TwoColumnLegend.cc
+	g++ $(CFLAG) -c TwoColumnLegend.cc
+
+makeFinalPlots.o: makeFinalPlots.cc BackgroundDistribution.h InclusiveSearchBin.h FinalPlot.h SearchBin.h Style.h HistogramReader.h SearchBinManager.h SignalDistribution.h
 	g++ $(CFLAG) -c makeFinalPlots.cc
 
 

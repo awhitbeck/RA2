@@ -13,9 +13,12 @@ public:
     std::string label = id;
     if(      id == "Data"       ) label = "Data";
     else if( id == "QCD"        ) label = "QCD";
-    else if( id == "LostLepton" ) label = "W/t#bar{t} #rightarrow e/#mu+jets";
-    else if( id == "HadTau"     ) label = "W/t#bar{t} #rightarrow #tau_{h}+jets";
-    else if( id == "ZInv"       ) label = "Z #rightarrow #nu#bar{#nu}+jets";
+    else if( id == "LostLepton" ) label = "W/t#bar{t}(e/#mu+#nu)+jets";
+    else if( id == "HadTau"     ) label = "W/t#bar{t}(#tau_{had}+#nu)+jets";
+    else if( id == "ZInv"       ) label = "Z(#nu#bar{#nu})+jets";
+    else if( id.find("T1tttt") != std::string::npos ) label = "T1tttt";
+    else if( id.find("T1qqqq") != std::string::npos ) label = "T1qqqq";
+    else if( id.find("T2qq") != std::string::npos   ) label = "T2qq";
   
     return label;
   }
@@ -27,6 +30,9 @@ public:
     else if( id == "LostLepton" ) col = kRed+1;
     else if( id == "HadTau"     ) col = kYellow;
     else if( id == "ZInv"       ) col = kGreen+1;
+    else if( id.find("T1tttt") != std::string::npos ) col = kBlue-2;
+    else if( id.find("T1qqqq") != std::string::npos ) col = kBlue;
+    else if( id.find("T2qq") != std::string::npos   ) col = kBlue+1;
   
     return col;
   }
@@ -91,7 +97,7 @@ public:
     gStyle->SetLabelOffset(0.007,"XYZ");
     gStyle->SetLabelSize(0.045,"XYZ");
     gStyle->SetTitleFont(42,"XYZ");
-    gStyle->SetTitleSize(0.04,"XYZ");
+    gStyle->SetTitleSize(0.045,"XYZ");
     gStyle->SetTitleXOffset(1.2);
     gStyle->SetTitleYOffset(2.2);
   

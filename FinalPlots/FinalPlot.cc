@@ -14,7 +14,9 @@
 
 #include "FinalPlot.h"
 #include "BackgroundDistribution.h"
+#include "SignalDistribution.h"
 #include "Style.h"
+#include "TwoColumnLegend.h"
 
 
 FinalPlot::FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool lastBinIsOverflow, const std::string& outNamePrefix)
@@ -41,9 +43,8 @@ FinalPlot::FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool 
     hRatioFrame_->SetBinContent(xBin,0.);
   }
   hRatioFrame_->SetFillColor(0);
-  hRatioFrame_->SetLineStyle(2);
   hRatioFrame_->SetLineColor(kBlack);
-  hRatioFrame_->SetLineWidth(2);
+  hRatioFrame_->SetLineWidth(1);
   hRatioFrame_->GetXaxis()->SetLabelSize(gStyle->GetLabelSize("X"));
   if(      var_ == "HT"    ) hRatioFrame_->GetXaxis()->SetTitle("H_{T} [GeV]");
   else if( var_ == "MHT"   ) hRatioFrame_->GetXaxis()->SetTitle("#slash{H}_{T} [GeV]");
@@ -66,6 +67,10 @@ FinalPlot::~FinalPlot() {
   for(std::vector<BackgroundDistribution*>::iterator bkgIt = bkgs_.begin();
       bkgIt != bkgs_.end(); ++bkgIt) {
     delete *bkgIt;
+  }
+  for(std::vector<SignalDistribution*>::iterator it = signals_.begin();
+      it != signals_.end(); ++it) {
+    delete *it;
   }
   delete title_;
 }
@@ -92,6 +97,27 @@ void FinalPlot::addBackground(BackgroundDistribution* bkg) {
 }
 
 
+void FinalPlot::addSignal(SignalDistribution* sig) {
+  // Sanity checks
+  if( sig->var() != var_ ) {
+    std::cerr << "\n\nERROR adding '" << sig->name() << "' signal to '" << var_ << "' FinalPlot" << std::endl;
+    std::cerr << "  Signal object is '" << sig->var() << "' distribution" << std::endl;
+    throw std::exception();
+  }
+  const TH1* hSig = sig->distribution("tmp");
+  if( hSig->GetNbinsX() != hDataOrig_->GetNbinsX() ||
+      hSig->GetXaxis()->GetBinLowEdge(1) != hDataOrig_->GetXaxis()->GetBinLowEdge(1) ||
+      hSig->GetXaxis()->GetBinUpEdge(hSig->GetNbinsX()) != hDataOrig_->GetXaxis()->GetBinUpEdge(hDataOrig_->GetNbinsX()) ) {
+    std::cerr << "\n\nERROR adding '" << hSig->GetName() << "' signal to '" << var_ << "' FinalPlot" << std::endl;
+    std::cerr << "  Binning is different than in data histogram." << std::endl;
+    throw std::exception();
+  }
+  delete hSig;
+
+  signals_.push_back(sig);
+}
+
+
 void FinalPlot::setTitle(const std::vector<std::string>& lines) {
   // Create histogram title
   delete title_;
@@ -114,16 +140,18 @@ void FinalPlot::setTitle(const std::vector<std::string>& lines) {
 
 void FinalPlot::draw() const {
   // Create legend
-  TLegend* leg = new TLegend(0.5,0.6,1.-gStyle->GetPadRightMargin()-0.05,1.-gStyle->GetPadTopMargin()-0.03);
-  leg->SetFillColor(0);
-  leg->SetBorderSize(0);
-  leg->SetTextFont(42);
-  leg->AddEntry(hDataDrawn_,"Data","P");
+  const unsigned int nLegEntries = 1 + bkgs_.size() + signals_.size();
+  TwoColumnLegend* leg = new TwoColumnLegend(0.045,2,nLegEntries-2,0.23,0.33);
+  leg->addEntry(hDataDrawn_,"Data","P");
 
   // Create background stack and error band
   std::vector<TH1*> stack;
   TGraphAsymmErrors* errorBand = NULL;
   createBackgroundStackAndErrorBand(stack,errorBand,leg);
+
+  // Create signal histograms
+  std::vector<TH1*> sigs;
+  createSignalHistograms(sigs,leg);
 
   // Create ratios
   TH1* hRatio = NULL;
@@ -140,8 +168,12 @@ void FinalPlot::draw() const {
     (*rit)->Draw("HISTsame");
   }
   errorBand->Draw("E2same");
+  for(std::vector<TH1*>::const_iterator it = sigs.begin();
+      it != sigs.end(); ++it) {
+    (*it)->Draw("Hsame");
+  }
   hDataDrawn_->Draw("PEsame");
-  leg->Draw("same");
+  leg->draw("same");
   title_->Draw("same");
   gPad->RedrawAxis();
   if( logy() ) can->SetLogy();
@@ -168,6 +200,10 @@ void FinalPlot::draw() const {
       it != stack.end(); ++it) {
     delete *it;
   }
+  for(std::vector<TH1*>::iterator it = sigs.begin();
+      it != sigs.end(); ++it) {
+    delete *it;
+  }
   delete errorBand;
   delete hRatio;
   delete ratioErrorBand;
@@ -176,7 +212,7 @@ void FinalPlot::draw() const {
 }
 
 
-void FinalPlot::createBackgroundStackAndErrorBand(std::vector<TH1*> &stack, TGraphAsymmErrors* &band, TLegend* leg) const {
+void FinalPlot::createBackgroundStackAndErrorBand(std::vector<TH1*> &stack, TGraphAsymmErrors* &band, TwoColumnLegend* leg) const {
   // Create background stack and store total error
   std::vector<double> errDn;
   std::vector<double> errUp;
@@ -236,7 +272,7 @@ void FinalPlot::createBackgroundStackAndErrorBand(std::vector<TH1*> &stack, TGra
   std::vector<TH1*>::const_reverse_iterator hIt = stack.rbegin();
   std::vector<BackgroundDistribution*>::const_reverse_iterator bkgIt = bkgs_.rbegin();
   for(; bkgIt != bkgs_.rend(); ++bkgIt, ++hIt) {
-    leg->AddEntry(*hIt,((*bkgIt)->legendLabel()).c_str(),"F");
+    leg->addEntry(*hIt,((*bkgIt)->legendLabel()).c_str(),"F");
   }
 }
 
@@ -293,6 +329,28 @@ void FinalPlot::createBackgroundHistogramWithErrors(const BackgroundDistribution
   hBkg->SetLineColor(bkg->fillColor());
   hBkg->SetFillColor(bkg->fillColor());
   hBkg->SetMarkerStyle(1);
+}
+
+
+void FinalPlot::createSignalHistograms(std::vector<TH1*> &hists, TwoColumnLegend* leg) const {
+  // Loop over signals
+  for(std::vector<SignalDistribution*>::const_iterator sigIt = signals_.begin();
+      sigIt != signals_.end(); ++sigIt) {
+    const SignalDistribution* sig = *sigIt;
+
+    TString name( sig->name() );
+    name += "_Signal";
+    name += signals_.size();
+    TH1* h = sig->distribution( std::string(name.Data()) );
+    for(int bin = 1; bin <= h->GetNbinsX(); ++bin) {
+      h->SetBinError(bin,0.);
+    }
+    if( rebin_ ) this->rebin(h,"histogram");
+    h->SetLineColor(sig->lineColor());
+
+    hists.push_back( h );
+    leg->addEntry(h,(sig->legendLabel()).c_str(),"L");
+  }
 }
 
 

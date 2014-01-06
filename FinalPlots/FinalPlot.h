@@ -10,6 +10,8 @@
 #include "TPaveText.h"
 
 #include "BackgroundDistribution.h"
+#include "SignalDistribution.h"
+#include "TwoColumnLegend.h"
 
 
 class FinalPlot {
@@ -18,6 +20,7 @@ public:
   ~FinalPlot();
 
   void addBackground(BackgroundDistribution* bkg);
+  void addSignal(SignalDistribution* sig);
   void setTitle(const std::vector<std::string>& lines);
   void draw() const;
 
@@ -32,9 +35,11 @@ private:
   TH1* hDataDrawn_;	       	// Data histogram with style changes and possibly rebinned
   TH1* hRatioFrame_;
   std::vector<BackgroundDistribution*> bkgs_;
+  std::vector<SignalDistribution*> signals_;
   TPaveText* title_;
 
-  void createBackgroundStackAndErrorBand(std::vector<TH1*> &stack, TGraphAsymmErrors* &band, TLegend* leg) const;
+  void createBackgroundStackAndErrorBand(std::vector<TH1*> &stack, TGraphAsymmErrors* &band, TwoColumnLegend* leg) const;
+  void createSignalHistograms(std::vector<TH1*> &hists, TwoColumnLegend* leg) const;
   void createRatioPlotAndErrorBand(const TH1* hData, const TH1* hBkg, const TGraphAsymmErrors* band, TH1* &hRatio, TGraphAsymmErrors* &ratioBand) const;
   void createBackgroundHistogramWithErrors(const BackgroundDistribution* bkg, TH1* &hBkg, TH1* &hDn, TH1* &hUp) const;
   void rebin(TH1* &h, const TString &type) const;

@@ -15,6 +15,7 @@
 #include "InclusiveSearchBin.h"
 #include "SearchBin.h"
 #include "SearchBinManager.h"
+#include "SignalDistribution.h"
 #include "Style.h"
 
 
@@ -48,6 +49,11 @@ void makeFinalPlots(const std::string& mode, bool isPaperPlot) {
   bkgs.push_back("LostLepton");
   bkgs.push_back("HadTau");
   bkgs.push_back("ZInv");
+
+  // Define plotted signal expectations
+  std::vector<std::string> signals;
+  signals.push_back("T1tttt:mGL1025_mLSP25");
+  signals.push_back("T1tttt:mGL1100_mLSP25");
 
   // The out-name prefix
   const std::string outName = isPaperPlot ? "SUS-13-012_Result_"+mode : "RA2_Result_"+mode;
@@ -122,6 +128,19 @@ void makeFinalPlots(const std::string& mode, bool isPaperPlot) {
 
     } // End of loop over backgrounds
 
+    // Add signal simulation
+    for(std::vector<std::string>::const_iterator sigIt = signals.begin();
+	sigIt != signals.end(); ++sigIt) {
+      std::cout << "Adding the " << *sigIt << " signal expectations to the " << var << " plot" << std::endl;
+      const TH1* hSignal = hReader.getHistogram(*sigIt,mode,var);
+      SignalDistribution* sig = new SignalDistribution(*sigIt,var,hSignal);
+      sig->setLineColor(Style::color(*sigIt));
+      sig->setLegendLabel(Style::legendLabel(*sigIt));
+      plot->addSignal(sig);
+      delete hSignal;
+    }
+
+
     // Draw the plot and clean up
     plot->draw();
     delete plot;
@@ -131,7 +150,7 @@ void makeFinalPlots(const std::string& mode, bool isPaperPlot) {
 
 
 int main() {
-  const bool isPaperPlot = true; // Paper plot (label 'CMS')?
+  const bool isPaperPlot = false; // Paper plot (label 'CMS')?
   
   makeFinalPlots("Baseline",isPaperPlot);	// the default NJets inclusive plots
   // makeFinalPlots("NJets3-5",isPaperPlot);
