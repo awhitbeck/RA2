@@ -18,7 +18,8 @@ public:
     else if( id == "ZInv"       ) label = "Z(#nu#bar{#nu})+jets";
     else if( id.find("T1tttt") != std::string::npos ) label = "T1tttt";
     else if( id.find("T1qqqq") != std::string::npos ) label = "T1qqqq";
-    else if( id.find("T2qq") != std::string::npos   ) label = "T2qq";
+    else if( id.find("T2qq"  ) != std::string::npos ) label = "T2qq";
+    else if( id.find("T5VV"  ) != std::string::npos ) label = "T5VV";
   
     return label;
   }
@@ -32,7 +33,8 @@ public:
     else if( id == "ZInv"       ) col = kGreen+1;
     else if( id.find("T1tttt") != std::string::npos ) col = kBlue-2;
     else if( id.find("T1qqqq") != std::string::npos ) col = kBlue;
-    else if( id.find("T2qq") != std::string::npos   ) col = kBlue+1;
+    else if( id.find("T2qq"  ) != std::string::npos ) col = kBlack;
+    else if( id.find("T5VV"  ) != std::string::npos ) col = kMagenta+2;
   
     return col;
   }

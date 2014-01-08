@@ -19,7 +19,7 @@
 #include "TwoColumnLegend.h"
 
 
-FinalPlot::FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool lastBinIsOverflow, const std::string& outNamePrefix)
+FinalPlot::FinalPlot(const std::string& mode, const std::string &var, const TH1* hData, bool rebin, bool lastBinIsOverflow, const std::string& outNamePrefix)
   : var_(var), rebin_(rebin), lastBinIsOverflow_(lastBinIsOverflow), outName_(outNamePrefix+"_"+var) {
 
   hDataOrig_ = static_cast<TH1*>(hData->Clone((var_+"_DataOrig").c_str()));
@@ -30,10 +30,27 @@ FinalPlot::FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool 
   hDataDrawn_->SetMarkerSize(Style::markerSize());
   hDataDrawn_->SetLineWidth(2);
   hDataDrawn_->GetYaxis()->SetTitle("Events");
-  if(      var_ == "HT"    ) hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,9E4);
-  else if( var_ == "MHT"   ) hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,3E5);
-  else if( var_ == "NJets" ) hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,5E7);
-  hDataDrawn_->GetXaxis()->SetNdivisions(505);
+  if(      var_ == "HT"    ) {
+    if(        mode == "NJets6-7" ) {
+      hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,2E4);
+    } else if( mode == "NJets8-Inf" ) {
+      hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,6E3);
+    } else {
+      hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,2E5);
+    }
+  } else if( var_ == "MHT"   ) {
+    if(        mode == "NJets6-7" ) {
+      hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,3E4);
+    } else if( mode == "NJets8-Inf" ) {
+      hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,6E2);
+    } else {
+      hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,3E5);
+    }
+  } else if( var_ == "NJets" ) {
+    hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,5E7);
+  }
+  if( var_ == "NJets" ) hDataDrawn_->GetXaxis()->SetNdivisions(205);
+  else                  hDataDrawn_->GetXaxis()->SetNdivisions(505);
   hDataDrawn_->GetXaxis()->SetLabelSize(0);
   hDataDrawn_->GetXaxis()->SetTitle("");
   hDataDrawn_->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.8);
@@ -48,7 +65,7 @@ FinalPlot::FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool 
   hRatioFrame_->GetXaxis()->SetLabelSize(gStyle->GetLabelSize("X"));
   if(      var_ == "HT"    ) hRatioFrame_->GetXaxis()->SetTitle("H_{T} [GeV]");
   else if( var_ == "MHT"   ) hRatioFrame_->GetXaxis()->SetTitle("#slash{H}_{T} [GeV]");
-  else if( var_ == "NJets" ) hRatioFrame_->GetXaxis()->SetTitle("N(jets)");
+  else if( var_ == "NJets" ) hRatioFrame_->GetXaxis()->SetTitle("N_{jets}");
   hRatioFrame_->GetYaxis()->SetRangeUser(-0.99,0.99);
   hRatioFrame_->GetYaxis()->SetTitle("(Data-Pred)/Pred");
   hRatioFrame_->GetYaxis()->SetNdivisions(205);
@@ -141,7 +158,7 @@ void FinalPlot::setTitle(const std::vector<std::string>& lines) {
 void FinalPlot::draw() const {
   // Create legend
   const unsigned int nLegEntries = 1 + bkgs_.size() + signals_.size();
-  TwoColumnLegend* leg = new TwoColumnLegend(0.045,2,nLegEntries-2,0.23,0.33);
+  TwoColumnLegend* leg = new TwoColumnLegend(0.045,3,nLegEntries-3,0.31,0.31);
   leg->addEntry(hDataDrawn_,"Data","P");
 
   // Create background stack and error band
@@ -159,7 +176,7 @@ void FinalPlot::draw() const {
   createRatioPlotAndErrorBand(hDataDrawn_,stack.back(),errorBand,hRatio,ratioErrorBand);
 
   // Plot
-  TCanvas* can = new TCanvas(("can_"+var_).c_str(),("can_"+var_).c_str(),500,500);
+  TCanvas* can = new TCanvas(("can_"+var_).c_str(),("can_"+var_).c_str(),700,700);
   can->SetBottomMargin(0.2 + 0.8*can->GetBottomMargin()-0.2*can->GetTopMargin());
   can->cd();
   hDataDrawn_->Draw("PE");

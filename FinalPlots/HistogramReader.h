@@ -17,7 +17,7 @@ public:
 private:
   TString dir_;
 
-  TH1* getAdjustedHistogram(TH1* h, const std::string &var) const;
+  TH1* getAdjustedHistogram(TH1* h, const std::string& mode, const std::string &var) const;
   TH1* splitBinning(const TH1* h) const;
   TString getFileName(const std::string& id, const std::string& mode) const;
   TString getHistName(const std::string& id, const std::string& mode, const std::string& var) const;
@@ -60,7 +60,7 @@ TH1* HistogramReader::getHistogram(const std::string &id, const std::string& mod
   }
 
   // pick out interesting x-range and fill overflow bin
-  TH1* hAdjusted = getAdjustedHistogram(h,var);
+  TH1* hAdjusted = getAdjustedHistogram(h,mode,var);
   const TString nameOrig( h->GetName() );
   delete h;
   hAdjusted->SetName(nameOrig);
@@ -86,12 +86,28 @@ TH1* HistogramReader::splitBinning(const TH1* h) const {
 }
 
 
-TH1* HistogramReader::getAdjustedHistogram(TH1* h, const std::string &var) const {
-  const TString nameOrig( h->GetName() );
+TH1* HistogramReader::getAdjustedHistogram(TH1* h, const std::string& mode, const std::string &var) const {
+  const TString newName = TString( h->GetName() ) + ":adjusted";
   TH1* hNew = NULL;
-  if(      var == "HT"    )  hNew = new TH1D(nameOrig+":adjusted","",45,500,2750);
-  else if( var == "MHT"   )  hNew = new TH1D(nameOrig+":adjusted","",19,200,1150);
-  else if( var == "NJets" )  hNew = new TH1D(nameOrig+":adjusted","",8,2.5,10.5);
+  if(      var == "HT"    ) {
+    if( mode == "NJets6-7" ) {
+      hNew = new TH1D(newName,"",38,500,2400);
+    } else if( mode == "NJets8-Inf" ) {
+      hNew = new TH1D(newName,"",26,500,1800);
+    } else {
+      hNew = new TH1D(newName,"",45,500,2750);
+    }
+  } else if( var == "MHT"   ) {
+    if( mode == "NJets6-7" ) {
+      hNew = new TH1D(newName,"",11,200,750);
+    } else if( mode == "NJets8-Inf" ) {
+      hNew = new TH1D(newName,"",6,200,500);
+    } else {
+      hNew = new TH1D(newName,"",19,200,1150);
+    }
+  } else if( var == "NJets" ) {
+    hNew = new TH1D(newName,"",8,2.5,10.5);
+  }
   const int lastBin = hNew->GetNbinsX();
   for(int bin = 1; bin <= lastBin; ++bin) {
     const int origBin = h->FindBin(hNew->GetBinCenter(bin));
@@ -164,6 +180,10 @@ TString HistogramReader::getFileName(const std::string& id, const std::string& m
     fileName += "SignalHistograms_T1qqqqMG.root";
   } else if( id.find("T1tttt") != std::string::npos ) {
     fileName += "SignalHistograms_T1ttttMG.root";
+  } else if( id.find("T2qq"  ) != std::string::npos ) {
+    fileName += "SignalHistograms_T2qqMG.root";
+  } else if( id.find("T5VV") != std::string::npos ) {
+    fileName += "SignalHistograms_T5VVMG.root";
   } else {
     std::cerr << "\n\nERROR when getting histograms from file" << std::endl;
     std::cerr << "  Unknown id '" << id << "'" << std::endl;
@@ -313,6 +333,8 @@ bool HistogramReader::isSignal(const std::string& id) const {
   bool result = false;
   if(      id.find("T1qqqq") != std::string::npos ) result = true;
   else if( id.find("T1tttt") != std::string::npos ) result = true;
+  else if( id.find("T2qq"  ) != std::string::npos ) result = true;
+  else if( id.find("T5VV"  ) != std::string::npos ) result = true;
 
   return result;
 }

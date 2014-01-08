@@ -52,8 +52,10 @@ void makeFinalPlots(const std::string& mode, bool isPaperPlot) {
 
   // Define plotted signal expectations
   std::vector<std::string> signals;
-  signals.push_back("T1tttt:mGL1025_mLSP25");
-  signals.push_back("T1tttt:mGL1100_mLSP25");
+  signals.push_back("T1qqqq:mGL1100_mLSP125");
+  signals.push_back("T1tttt:mGL1100_mLSP125");
+  signals.push_back("T2qq:mGL700_mLSP150");
+  signals.push_back("T5VV:mGL1100_mLSP125");
 
   // The out-name prefix
   const std::string outName = isPaperPlot ? "SUS-13-012_Result_"+mode : "RA2_Result_"+mode;
@@ -65,15 +67,15 @@ void makeFinalPlots(const std::string& mode, bool isPaperPlot) {
     title.back() = "CMS,  "+title.back();
   }
   if(         mode == "NJets3-5") {
-    title.push_back("3 #leq N_{Jets}#leq 5");
+    title.push_back("3 #leq N_{jets} #leq 5");
   } else  if( mode == "NJets6-7") {
-    title.push_back("6 #leq N_{Jets}#leq 7");
+    title.push_back("6 #leq N_{jets} #leq 7");
   } else  if( mode == "NJets8-Inf") {
-    title.push_back("N_{Jets}#geq 8");
+    title.push_back("N_{jets} #geq 8");
   } else {
-    title.push_back("N_{Jets}#geq 3");
+    title.push_back("N_{jets} #geq 3");
   }
-  title.back() += ",  H_{T}> 500 GeV,  #slash{H}_{T}> 200 GeV";
+  title.back() += ",  H_{T} > 500 GeV,  #slash{H}_{T} > 200 GeV";
 
   // Takes care of reading the histograms
   const HistogramReader hReader(dir+"/data");
@@ -92,7 +94,7 @@ void makeFinalPlots(const std::string& mode, bool isPaperPlot) {
     const TH1* hData = hReader.getHistogram("Data",mode,var);
     const bool rebin = ( var == "HT" ); // Want to go from 50 to 100 GeV bins after scaling
     const bool lastBinIsOverflow = true;
-    FinalPlot* plot = new FinalPlot(var,hData,rebin,lastBinIsOverflow,outName);
+    FinalPlot* plot = new FinalPlot(mode,var,hData,rebin,lastBinIsOverflow,outName);
     plot->setTitle(title);
     delete hData;
   
@@ -153,9 +155,9 @@ int main() {
   const bool isPaperPlot = false; // Paper plot (label 'CMS')?
   
   makeFinalPlots("Baseline",isPaperPlot);	// the default NJets inclusive plots
-  // makeFinalPlots("NJets3-5",isPaperPlot);
-  // makeFinalPlots("NJets6-7",isPaperPlot);
-  // makeFinalPlots("NJets8-Inf",isPaperPlot);
+  makeFinalPlots("NJets3-5",isPaperPlot);
+  makeFinalPlots("NJets6-7",isPaperPlot);
+  makeFinalPlots("NJets8-Inf",isPaperPlot);
   //  makeFinalPlots("AlternativeScheme",isPaperPlot); // same as Baseline but with the alternative MHT combination scheme
 
   return 0;

@@ -16,7 +16,7 @@
 
 class FinalPlot {
 public:
-  FinalPlot(const std::string &var, const TH1* hData, bool rebin, bool lastBinIsOverflow, const std::string& outNamePrefix);
+  FinalPlot(const std::string& mode, const std::string &var, const TH1* hData, bool rebin, bool lastBinIsOverflow, const std::string& outNamePrefix);
   ~FinalPlot();
 
   void addBackground(BackgroundDistribution* bkg);

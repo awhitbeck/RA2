@@ -38,9 +38,9 @@ std::vector<SearchBin*> SearchBin::createFromTxtFile(const std::string &input) {
 	}
 	std::vector<double> vals = StringParser::strToDoubles(line);
 	if( vals.size() == 4 ) {
-	  bins.push_back(new SearchBin(binIdx,vals.at(0),vals.at(1),vals.at(1),vals.at(2),vals.at(3)));
+	  bins.push_back(new SearchBin(binIdx,vals.at(0),vals.at(1),vals.at(1),vals.at(3),vals.at(2)));
 	} else if( vals.size() == 5 ) {
-	  bins.push_back(new SearchBin(binIdx,vals.at(0),vals.at(1),vals.at(2),vals.at(3),vals.at(4)));
+	  bins.push_back(new SearchBin(binIdx,vals.at(0),vals.at(2),vals.at(1),vals.at(4),vals.at(3)));
 	} else {
 	  std::cerr << "\n\nERROR: wrong bin format in '" << input << "'" << std::endl;
 	  std::cerr << "  should be : 'yield  stat  systDn  systUp'" << std::endl;
