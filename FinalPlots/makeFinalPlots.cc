@@ -54,8 +54,10 @@ void makeFinalPlots(const std::string& mode, bool isPaperPlot) {
   std::vector<std::string> signals;
   signals.push_back("T1qqqq:mGL1100_mLSP125");
   signals.push_back("T1tttt:mGL1100_mLSP125");
-  signals.push_back("T2qq:mGL700_mLSP150");
   signals.push_back("T5VV:mGL1100_mLSP125");
+  if( mode != "NJets8-Inf" ) {
+    signals.push_back("T2qq:mGL700_mLSP150");
+  }
 
   // The out-name prefix
   const std::string outName = isPaperPlot ? "SUS-13-012_Result_"+mode : "RA2_Result_"+mode;
@@ -137,6 +139,7 @@ void makeFinalPlots(const std::string& mode, bool isPaperPlot) {
       const TH1* hSignal = hReader.getHistogram(*sigIt,mode,var);
       SignalDistribution* sig = new SignalDistribution(*sigIt,var,hSignal);
       sig->setLineColor(Style::color(*sigIt));
+      sig->setLineStyle(Style::lineStyle(*sigIt));
       sig->setLegendLabel(Style::legendLabel(*sigIt));
       plot->addSignal(sig);
       delete hSignal;

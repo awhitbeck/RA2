@@ -34,7 +34,7 @@ FinalPlot::FinalPlot(const std::string& mode, const std::string &var, const TH1*
     if(        mode == "NJets6-7" ) {
       hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,2E4);
     } else if( mode == "NJets8-Inf" ) {
-      hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,6E3);
+      hDataDrawn_->GetYaxis()->SetRangeUser(3E-2,6E3);
     } else {
       hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,2E5);
     }
@@ -42,7 +42,7 @@ FinalPlot::FinalPlot(const std::string& mode, const std::string &var, const TH1*
     if(        mode == "NJets6-7" ) {
       hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,3E4);
     } else if( mode == "NJets8-Inf" ) {
-      hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,6E2);
+      hDataDrawn_->GetYaxis()->SetRangeUser(3E-2,2E3);
     } else {
       hDataDrawn_->GetYaxis()->SetRangeUser(3E-1,3E5);
     }
@@ -364,6 +364,8 @@ void FinalPlot::createSignalHistograms(std::vector<TH1*> &hists, TwoColumnLegend
     }
     if( rebin_ ) this->rebin(h,"histogram");
     h->SetLineColor(sig->lineColor());
+    h->SetLineStyle(sig->lineStyle());
+    h->SetLineWidth(2);
 
     hists.push_back( h );
     leg->addEntry(h,(sig->legendLabel()).c_str(),"L");

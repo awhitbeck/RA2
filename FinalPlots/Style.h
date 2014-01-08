@@ -16,10 +16,10 @@ public:
     else if( id == "LostLepton" ) label = "W/t#bar{t}(e/#mu+#nu)+jets";
     else if( id == "HadTau"     ) label = "W/t#bar{t}(#tau_{had}+#nu)+jets";
     else if( id == "ZInv"       ) label = "Z(#nu#bar{#nu})+jets";
-    else if( id.find("T1tttt") != std::string::npos ) label = "T1tttt";
-    else if( id.find("T1qqqq") != std::string::npos ) label = "T1qqqq";
-    else if( id.find("T2qq"  ) != std::string::npos ) label = "T2qq";
-    else if( id.find("T5VV"  ) != std::string::npos ) label = "T5VV";
+    else if( id.find("T1tttt") != std::string::npos ) label = "pp#rightarrow#tilde{g}#tilde{g}, #tilde{g}#rightarrowt#bar{t}#tilde{#chi}^{0}_{1}";
+    else if( id.find("T1qqqq") != std::string::npos ) label = "pp#rightarrow#tilde{g}#tilde{g}, #tilde{g}#rightarrowq#bar{q}#tilde{#chi}^{0}_{1}";
+    else if( id.find("T2qq"  ) != std::string::npos ) label = "pp#rightarrow#tilde{q}#tilde{q}, #tilde{q}#rightarrowq#tilde{#chi}^{0}_{1}";
+    else if( id.find("T5VV"  ) != std::string::npos ) label = "pp#rightarrow#tilde{g}#tilde{g}, #tilde{g}#rightarrowq#bar{q}V#tilde{#chi}^{0}_{1}";
   
     return label;
   }
@@ -31,12 +31,22 @@ public:
     else if( id == "LostLepton" ) col = kRed+1;
     else if( id == "HadTau"     ) col = kYellow;
     else if( id == "ZInv"       ) col = kGreen+1;
-    else if( id.find("T1tttt") != std::string::npos ) col = kBlue-2;
+    else if( id.find("T1tttt") != std::string::npos ) col = kBlue;
     else if( id.find("T1qqqq") != std::string::npos ) col = kBlue;
     else if( id.find("T2qq"  ) != std::string::npos ) col = kBlack;
-    else if( id.find("T5VV"  ) != std::string::npos ) col = kMagenta+2;
+    else if( id.find("T5VV"  ) != std::string::npos ) col = kBlue;
   
     return col;
+  }
+
+  static int lineStyle(const std::string &id) {
+    int style = 1;
+    if(      id.find("T1tttt") != std::string::npos ) style = 2;
+    else if( id.find("T1qqqq") != std::string::npos ) style = 1;
+    else if( id.find("T2qq"  ) != std::string::npos ) style = 1;
+    else if( id.find("T5VV"  ) != std::string::npos ) style = 3;
+  
+    return style;
   }
 
   static void init() {
