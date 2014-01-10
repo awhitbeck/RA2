@@ -365,7 +365,7 @@ void FinalPlot::createSignalHistograms(std::vector<TH1*> &hists, TwoColumnLegend
     if( rebin_ ) this->rebin(h,"histogram");
     h->SetLineColor(sig->lineColor());
     h->SetLineStyle(sig->lineStyle());
-    h->SetLineWidth(2);
+    h->SetLineWidth(3);
 
     hists.push_back( h );
     leg->addEntry(h,(sig->legendLabel()).c_str(),"L");

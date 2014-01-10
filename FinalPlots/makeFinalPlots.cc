@@ -155,7 +155,7 @@ void makeFinalPlots(const std::string& mode, bool isPaperPlot) {
 
 
 int main() {
-  const bool isPaperPlot = false; // Paper plot (label 'CMS')?
+  const bool isPaperPlot = true; // Paper plot (label 'CMS')?
   
   makeFinalPlots("Baseline",isPaperPlot);	// the default NJets inclusive plots
   makeFinalPlots("NJets3-5",isPaperPlot);
