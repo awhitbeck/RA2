@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "TCanvas.h"
+#include "TF1.h"
 #include "TH1.h"
 #include "TH1D.h"
 #include "TMath.h"
@@ -131,8 +132,8 @@ void ToyExperiments::run(unsigned int nPredictions, unsigned int nExperiments) c
   // Minimal value (in standard deviations) allowed for
   //correlated fluctuation
   const double minCorr = findMinValidRandomNumberForCorrelatedUncertainties();
-
-  // Throw mean values
+  
+  // Throw mean values using truncated-Gaussian distribution
   for(unsigned int p = 0; p < nPredictions; ++p) {
     // Throw one (normalized) random number for correlated
     // uncertainties that is valid in all bins
@@ -140,37 +141,70 @@ void ToyExperiments::run(unsigned int nPredictions, unsigned int nExperiments) c
     while( rCorr <= minCorr ) {
       rCorr = rand_->Gaus(0.,1.);
     }
-
+    
     // Loop over all bins and get individual predictions
     for(unsigned int bin = 0; bin < Parameters::nBins(); ++bin) {
       double prediction = -1.;
       bool negativePrediction = true;
       while( negativePrediction ) {
-        // Throw one (normalized) random number for uncorrelated
-        // uncertainties that is valid in this bin only
-        double rUncorr = rand_->Gaus(0.,1.);
-        
-        // Scale the normalized random numbers by the uncertainties' size
-        // to obtain variation of yield
-        double uncorrVar = rUncorr * uncorrelatedUncerts_.at(bin);
-        double corrVar = rCorr * correlatedUncerts_.at(bin);
-        
-        // Add variations to yield
-        prediction = meanPredictions_.at(bin) + uncorrVar + corrVar;
-        
-        // Check if prediction is positive
-        if( prediction >= 0. ) {
-         negativePrediction = false;
-        }
+	// Throw one (normalized) random number for uncorrelated
+	// uncertainties that is valid in this bin only
+	double rUncorr = rand_->Gaus(0.,1.);
+	
+	// Scale the normalized random numbers by the uncertainties' size
+	// to obtain variation of yield
+	double uncorrVar = rUncorr * uncorrelatedUncerts_.at(bin);
+	double corrVar = rCorr * correlatedUncerts_.at(bin);
+	
+	// Add variations to yield
+	prediction = meanPredictions_.at(bin) + uncorrVar + corrVar;
+	
+	// Check if prediction is positive
+	if( prediction >= 0. ) {
+          negativePrediction = false;
+	}
       }
-
+      
       // Throw predicted yields from Poisson with
       // this mean
       for(unsigned int e = 0; e < nExperiments; ++e) {
-        predictedYields_.at(bin)->Fill(rand_->Poisson(prediction));
+	predictedYields_.at(bin)->Fill(rand_->Poisson(prediction));
       }
     }
   }
+  
+//   // Throw mean values using log-normal distribution
+
+//   // First, get appropriate log-normal distributions for each bin
+//   std::vector<TH1*> logNorm;
+//   for(unsigned int bin = 0; bin < Parameters::nBins(); ++bin) {
+//     TString name("LNCorr");
+//     name += bin;
+//     TH1* h = new TH1D(name,"",100000,0,5000);
+//     for(int hbin = 1; hbin <= h->GetNbinsX(); ++hbin) {
+//       const double x = h->GetBinCenter(hbin);
+//       h->SetBinContent( hbin, TMath::LogNormal(x,uncorrelatedUncerts_.at(bin),0.,meanPredictions_.at(bin)) );
+//     }
+//     logNorm.push_back( h );
+//   }
+
+//   TF1 fLogNorm("fLogNorm","TMath::LogNormal(x,[0],0.,[1])",0,1000);
+//   // Loop over all bins and get individual predictions
+//   for(unsigned int bin = 0; bin < Parameters::nBins(); ++bin) {
+//     fLogNorm.SetParameters( uncorrelatedUncerts_.at(bin),meanPredictions_.at(bin) );
+//     for(unsigned int p = 0; p < nPredictions; ++p) {
+      
+//       const double prediction = fLogNorm.GetRandom();
+
+//       // Throw predicted yields from Poisson with
+//       // this mean
+//       for(unsigned int e = 0; e < nExperiments; ++e) {
+//         predictedYields_.at(bin)->Fill(rand_->Poisson(prediction));
+//       }
+//     }
+//   }
+
+
   std::cout << "ok" << std::endl;
 
   for(unsigned int bin = 0; bin < Parameters::nBins(); ++bin) {
@@ -764,26 +798,6 @@ int main(int argc, char *argv[]) {
   }
   const int n = std::atoi( argv[1] );
 
-  // Test
-  // Background bkg("TEST");
-  // bkg.addBin(6,0,1.1);
-  // bkg.addBin(6,0,1.1);
-  // bkg.addBin(6,0,1.1);
-  // Observation obs;
-  // obs.addBin(9);
-  // obs.addBin(9);
-  // obs.addBin(9);
-
-  // Background bkg("TEST");
-  // bkg.addBin(0.8,0,1.7);
-  // bkg.addBin(0.8,0,1.7);
-  // bkg.addBin(0.8,0,1.7);
-  // Observation obs;
-  // obs.addBin(9);
-  // obs.addBin(9);
-  // obs.addBin(9);
-
-
   ToyExperiments toys;
   toys.setObservation( ra2Data() );
 
@@ -806,7 +820,7 @@ int main(int argc, char *argv[]) {
     Background bkg( *bkgIt );
     for(std::vector<SearchBin*>::const_iterator binIt = bins.begin();
 	binIt != bins.end(); ++binIt) {
-      
+
       const double mean   = (*binIt)->yield();
       const double uncorr = (*binIt)->statUp();
       const double corr   = (*binIt)->systUp();
@@ -816,12 +830,22 @@ int main(int argc, char *argv[]) {
     toys.addBackground( bkg );
   }
 
+
+//   // Test
+//   Background bkg("TEST");
+//   bkg.addBin(0.8,3.3,0.);
+//   Observation obs;
+//   obs.addBin(9);
+//   ToyExperiments toys;
+//   toys.setObservation( obs );
+//   toys.addBackground( bkg );
+
+
   toys.printSetup();
   toys.run(n,n);
   toys.printLocalPValue();
-  toys.printGlobalPValueOfLocalFluctuation(19,n*n);
+  //  toys.printGlobalPValueOfLocalFluctuation(19,n*n);
   //toys.printGlobalPValueOfObservation(n*n);
 
   return 0;
 }
-
