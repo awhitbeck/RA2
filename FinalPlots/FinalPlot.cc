@@ -65,7 +65,7 @@ FinalPlot::FinalPlot(const std::string& mode, const std::string &var, const TH1*
   hRatioFrame_->GetXaxis()->SetLabelSize(gStyle->GetLabelSize("X"));
   if(      var_ == "HT"    ) hRatioFrame_->GetXaxis()->SetTitle("H_{T} [GeV]");
   else if( var_ == "MHT"   ) hRatioFrame_->GetXaxis()->SetTitle("#slash{H}_{T} [GeV]");
-  else if( var_ == "NJets" ) hRatioFrame_->GetXaxis()->SetTitle("N_{jets}");
+  else if( var_ == "NJets" ) hRatioFrame_->GetXaxis()->SetTitle("N_{Jets}");
   hRatioFrame_->GetYaxis()->SetRangeUser(-0.99,0.99);
   hRatioFrame_->GetYaxis()->SetTitle("(Data-Pred)/Pred");
   hRatioFrame_->GetYaxis()->SetNdivisions(205);

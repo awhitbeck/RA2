@@ -69,13 +69,13 @@ void makeFinalPlots(const std::string& mode, bool isPaperPlot) {
     title.back() = "CMS,  "+title.back();
   }
   if(         mode == "NJets3-5") {
-    title.push_back("3 #leq N_{jets} #leq 5");
+    title.push_back("3 #leq N_{Jets} #leq 5");
   } else  if( mode == "NJets6-7") {
-    title.push_back("6 #leq N_{jets} #leq 7");
+    title.push_back("6 #leq N_{Jets} #leq 7");
   } else  if( mode == "NJets8-Inf") {
-    title.push_back("N_{jets} #geq 8");
+    title.push_back("N_{Jets} #geq 8");
   } else {
-    title.push_back("N_{jets} #geq 3");
+    title.push_back("N_{Jets} #geq 3");
   }
   title.back() += ",  H_{T} > 500 GeV,  #slash{H}_{T} > 200 GeV";
 
