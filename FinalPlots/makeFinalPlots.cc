@@ -62,18 +62,22 @@ void makeFinalPlots(const std::string& mode, bool isPaperPlot) {
   // The out-name prefix
   const std::string outName = isPaperPlot ? "SUS-13-012_Result_"+mode : "RA2_Result_"+mode;
 
-  // The histogram title
+  // The histogram title and sub-plot label
   std::vector<std::string> title;
+  std::string subPlotLabel;
   title.push_back("L = 19.5 fb^{-1},  #sqrt{s} = 8 TeV");
   if( isPaperPlot ) {
     title.back() = "CMS,  "+title.back();
   }
   if(         mode == "NJets3-5") {
     title.push_back("3 #leq N_{Jets} #leq 5");
+    subPlotLabel = "(a)";
   } else  if( mode == "NJets6-7") {
     title.push_back("6 #leq N_{Jets} #leq 7");
+    subPlotLabel = "(b)";
   } else  if( mode == "NJets8-Inf") {
     title.push_back("N_{Jets} #geq 8");
+    subPlotLabel = "(c)";
   } else {
     title.push_back("N_{Jets} #geq 3");
   }
@@ -98,6 +102,7 @@ void makeFinalPlots(const std::string& mode, bool isPaperPlot) {
     const bool lastBinIsOverflow = true;
     FinalPlot* plot = new FinalPlot(mode,var,hData,rebin,lastBinIsOverflow,outName);
     plot->setTitle(title);
+    plot->setSubPlotLabel(subPlotLabel);
     delete hData;
   
     // Add backgrounds to plot

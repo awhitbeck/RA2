@@ -22,6 +22,7 @@ public:
   void addBackground(BackgroundDistribution* bkg);
   void addSignal(SignalDistribution* sig);
   void setTitle(const std::vector<std::string>& lines);
+  void setSubPlotLabel(const std::string& label);
   void draw() const;
 
 
@@ -37,6 +38,7 @@ private:
   std::vector<BackgroundDistribution*> bkgs_;
   std::vector<SignalDistribution*> signals_;
   TPaveText* title_;
+  TPaveText* subPlotLabel_;
 
   void createBackgroundStackAndErrorBand(std::vector<TH1*> &stack, TGraphAsymmErrors* &band, TwoColumnLegend* leg) const;
   void createSignalHistograms(std::vector<TH1*> &hists, TwoColumnLegend* leg) const;

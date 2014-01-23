@@ -74,6 +74,9 @@ FinalPlot::FinalPlot(const std::string& mode, const std::string &var, const TH1*
   hRatioFrame_->GetYaxis()->SetTitleOffset(0.9*hRatioFrame_->GetYaxis()->GetTitleOffset());
 
   title_ = new TPaveText();
+  
+  // sub-plot label
+  subPlotLabel_ = new TPaveText();
 }
 
 
@@ -90,6 +93,7 @@ FinalPlot::~FinalPlot() {
     delete *it;
   }
   delete title_;
+  delete subPlotLabel_;
 }
 
 
@@ -155,10 +159,28 @@ void FinalPlot::setTitle(const std::vector<std::string>& lines) {
 }
 
 
+void FinalPlot::setSubPlotLabel(const std::string& label) {
+  delete subPlotLabel_;
+  subPlotLabel_ = new TPaveText(gStyle->GetPadLeftMargin()+0.025,
+				1.-gStyle->GetPadTopMargin()-0.02,
+				gStyle->GetPadLeftMargin()+0.065,
+				1.-gStyle->GetPadTopMargin()-0.08,
+				"NDC");
+  subPlotLabel_->SetBorderSize(0);
+  subPlotLabel_->SetFillColor(0);
+  subPlotLabel_->SetTextFont(42);
+  subPlotLabel_->SetTextAlign(12);
+  subPlotLabel_->SetTextSize(0.04);
+  subPlotLabel_->SetMargin(0.);
+  subPlotLabel_->AddText( label.c_str() );
+}
+
+
 void FinalPlot::draw() const {
   // Create legend
   const unsigned int nLegEntries = 1 + bkgs_.size() + signals_.size();
-  TwoColumnLegend* leg = new TwoColumnLegend(0.045,3,nLegEntries-3,0.31,0.31);
+  //TwoColumnLegend* leg = new TwoColumnLegend(0.045,3,nLegEntries-3,0.31,0.31);
+  TwoColumnLegend* leg = new TwoColumnLegend(0.045,3,nLegEntries-3,0.3,0.3);
   leg->addEntry(hDataDrawn_,"Data","P");
 
   // Create background stack and error band
@@ -191,6 +213,7 @@ void FinalPlot::draw() const {
   }
   hDataDrawn_->Draw("PEsame");
   leg->draw("same");
+  subPlotLabel_->Draw("same");
   title_->Draw("same");
   gPad->RedrawAxis();
   if( logy() ) can->SetLogy();
