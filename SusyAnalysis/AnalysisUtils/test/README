@@ -1,0 +1,9 @@
+
+To use officially available LHE files, the first step is to read an 
+event and convert it to an edm LHEEventProduct.
+
+cmsDriver.py MCDBtoEDM --conditions auto:startup --filein=file:/uscms/home/seema/3DayLifetime/gjets.lhe -s NONE --eventcontent RAWSIM --datatier GEN
+
+One can then use EDAnalyzer to read this product and use parton information.
+And example to filter on a particle of given pT is given in 
+SusyAnalysis/AnalysisUtils/plugins/FilterLHEParticles.cc

@@ -1,0 +1,13 @@
+universe=vanilla
+Executable=local_condor.sh
+output = $(Process).out
+error =  $(Process).err
+log =    $(Process).log
+Requirements = Memory >= 199 && OpSys == "LINUX" && (Arch != "DUMMY")
+Should_Transfer_Files = YES
+Transfer_Input_Files = oset_cfg.py
+Arguments = $(Process)
+WhenTOTransferOutput  = ON_EXIT
+environment = TUNE=326; NOJOBS=20; NOEVENTS=100000;
+Notification = error
+Queue 335

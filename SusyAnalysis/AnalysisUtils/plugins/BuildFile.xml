@@ -1,0 +1,15 @@
+<export>
+</export>
+<library   name="SusyAnalysisAnalysisUtils_plugins" file="*.cc">
+ <use name="FWCore/Framework"/>
+ <use name="FWCore/ParameterSet"/>
+ <use name="FWCore/MessageLogger"/>
+ <use name="DataFormats/HepMCCandidate"/>
+ <use name="SimDataFormats/GeneratorProducts"/>
+ <use name="SimGeneral/HepPDTRecord"/>
+ <use name="PhysicsTools/HepMCCandAlgos"/>
+ <use name="CommonTools/Utils"/>
+ <use name="FWCore/PluginManager"/>
+ <use name="SusyAnalysis/AnalysisUtils"/>
+ <use name="root"/>
+</library>

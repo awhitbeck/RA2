@@ -1,0 +1,33 @@
+
+
+
+T1 (pp --> gluino-gluino)
+----------------------------------------------------------------------------
+Cross sections from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections8TeVgluglu
+Dataset /SMS-T1_Mgluino-100to2000_mLSP-0to2000_8TeV-Pythia6Z/Summer12-START52_V9_FSIM-v1/AODSIM
+
+[m(gluino)]	[m(LSP)]	[xs]		#events
+700		450		0.433971	10000
+1100		500		0.0101744	10000
+1150		50		0.00666673	9999
+1150		200		0.00666673	10000
+
+
+T2 (pp --> squark-antisquark)
+----------------------------------------------------------------------------
+Cross sections from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections8TeVsquarkantisquark
+Dataset /SMS-T2_Msquark-225to1200_mLSP-0to1200_8TeV-Pythia6Z/Summer12-START52_V9_FSIM-v1/AODSIM
+
+[m(gluino)]	[m(LSP)]	[xs]		#events
+600		400		0.244862	10000
+900		50		0.0106744	10000
+900		300		0.0106744	9999
+
+
+T1tttt (pp --> gluino-gluino)
+----------------------------------------------------------------------------
+Cross sections from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections8TeVstopsbottom
+Dataset /SMS-T1tttt_Mgluino-350to2000_mLSP-0to1650_8TeV-Pythia6Z/Summer12-START52_V9_FSIM-v3/AODSIM
+
+[m(gluino)]	[m(LSP)]	[xs]		#events
+1000		400		0.000435488	49994

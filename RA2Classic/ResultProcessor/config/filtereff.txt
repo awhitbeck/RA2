@@ -1,0 +1,93 @@
+# Specify global parameters
+global :: id: RA2_535-ABCD
+global :: lumi: 19.466
+
+
+# Specify the variables that are read from the ntuple and their type
+event content :: name: HT; type: Float_t; label: H_{T}; unit: GeV
+event content :: name: MHT; type: Float_t; label: #slash{H}_{T}; unit: GeV
+event content :: name: NJets; type: UShort_t; label: N(Jets)
+event content :: name: DeltaPhi1; type: Float_t; label: #Delta#Phi_{1}
+event content :: name: DeltaPhi2; type: Float_t; label: #Delta#Phi_{2}
+event content :: name: DeltaPhi3; type: Float_t; label: #Delta#Phi_{3}
+event content :: name: Weight; type: Float_t
+
+event content :: name: Filter_HBHENoiseFilterRA2; type: UChar_t
+event content :: name: Filter_beamHaloFilter; type: UChar_t
+event content :: name: Filter_trackingFailureFilter; type: UChar_t
+event content :: name: Filter_inconsistentMuons; type: UChar_t
+event content :: name: Filter_greedyMuons; type: UChar_t
+event content :: name: Filter_ra2EcalTPFilter; type: UChar_t
+event content :: name: Filter_ra2EcalBEFilter; type: UChar_t
+event content :: name: Filter_hcalLaserEventFilter; type: UChar_t
+event content :: name: Filter_ecalLaserCorrFilter; type: UChar_t
+event content :: name: Filter_eeBadScFilter; type: UChar_t
+event content :: name: Filter_PBNRFilter; type: UChar_t
+event content :: name: Filter_HCALLaserEvtFilterList2012; type: UChar_t
+event content :: name: Filter_manystripclus53X; type: UChar_t
+event content :: name: Filter_toomanystripclus53X; type: UChar_t
+event content :: name: Filter_logErrorTooManyClusters; type: UChar_t
+event content :: name: Filter_RA2CaloVsPFMHTFilter; type: UChar_t
+
+
+
+dataset :: label: Data; type: data; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_Run2012-ABCv1ReReco-Cv2DPromptReco_JetMETInfo_NoFilters.root; tree: RA2TreeMaker/RA2PreSelection;
+
+#dataset :: label: QCD; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_QCD_HT250-Inf_TuneZ2star_8TeV-madgraph-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_V4_JetMETInfo_FilterInfo.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+
+
+selection :: label: filters; cuts: Filter_HBHENoiseFilterRA2>0 + Filter_beamHaloFilter>0  + Filter_trackingFailureFilter>0 + Filter_inconsistentMuons>0 + Filter_greedyMuons>0 + Filter_ra2EcalTPFilter>0 + Filter_ra2EcalBEFilter>0 + Filter_hcalLaserEventFilter>0 + Filter_ecalLaserCorrFilter>0 + Filter_eeBadScFilter>0 + Filter_PBNRFilter>0 + Filter_HCALLaserEvtFilterList2012>0 + Filter_manystripclus53X<1 + Filter_toomanystripclus53X<1 + Filter_logErrorTooManyClusters<1
+# + Filter_RA2CaloVsPFMHTFilter>0
+
+selection :: label: NJet_3-5__HT_0500-0800__MHT_200-300;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 500 < HT < 800   + 200 < MHT < 300
+selection :: label: NJet_3-5__HT_0500-0800__MHT_300-450;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 500 < HT < 800   + 300 < MHT < 450
+selection :: label: NJet_3-5__HT_0500-0800__MHT_450-600;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 500 < HT < 800   + 450 < MHT < 600
+selection :: label: NJet_3-5__HT_0500-0800__MHT_600-Inf;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 500 < HT < 800   + 600 < MHT < 9999      
+
+selection :: label: NJet_3-5__HT_0800-1000__MHT_200-300;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 800 < HT < 1000  + 200 < MHT < 300
+selection :: label: NJet_3-5__HT_0800-1000__MHT_300-450;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 800 < HT < 1000  + 300 < MHT < 450
+selection :: label: NJet_3-5__HT_0800-1000__MHT_450-600;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 800 < HT < 1000  + 450 < MHT < 600
+selection :: label: NJet_3-5__HT_0800-1000__MHT_600-Inf;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 800 < HT < 1000  + 600 < MHT < 9999      
+
+selection :: label: NJet_3-5__HT_1000-1250__MHT_200-300;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 1000 < HT < 1250 + 200 < MHT < 300 
+selection :: label: NJet_3-5__HT_1000-1250__MHT_300-450;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 1000 < HT < 1250 + 300 < MHT < 450 
+selection :: label: NJet_3-5__HT_1000-1250__MHT_450-600;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 1000 < HT < 1250 + 450 < MHT < 600 
+selection :: label: NJet_3-5__HT_1000-1250__MHT_600-Inf;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 1000 < HT < 1250 + 600 < MHT < 9999 
+
+selection :: label: NJet_3-5__HT_1250-1500__MHT_200-300;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 1250 < HT < 1500 + 200 < MHT < 300 
+selection :: label: NJet_3-5__HT_1250-1500__MHT_300-450;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 1250 < HT < 1500 + 300 < MHT < 450  
+selection :: label: NJet_3-5__HT_1250-1500__MHT_450-Inf;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 1250 < HT < 1500 + 450 < MHT < 9999
+
+selection :: label: NJet_3-5__HT_1500-Inf__MHT_200-300;     cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6  + 1500 < HT < 9999 + 200 < MHT < 300
+selection :: label: NJet_3-5__HT_1500-Inf__MHT_300-Inf;     cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6  + 1500 < HT < 9999 + 300 < MHT < 9999      
+
+
+selection :: label: NJet_6-7__HT_0500-0800__MHT_200-300;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8   + 500 < HT < 800   + 200 < MHT < 300
+selection :: label: NJet_6-7__HT_0500-0800__MHT_300-450;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8   + 500 < HT < 800   + 300 < MHT < 450
+selection :: label: NJet_6-7__HT_0500-0800__MHT_450-Inf;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8   + 500 < HT < 800   + 450 < MHT < 9999
+
+selection :: label: NJet_6-7__HT_0800-1000__MHT_200-300;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8   + 800 < HT < 1000  + 200 < MHT < 300
+selection :: label: NJet_6-7__HT_0800-1000__MHT_300-450;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8   + 800 < HT < 1000  + 300 < MHT < 450
+selection :: label: NJet_6-7__HT_0800-1000__MHT_450-Inf;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8   + 800 < HT < 1000  + 450 < MHT < 9999
+
+selection :: label: NJet_6-7__HT_1000-1250__MHT_200-300;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8   + 1000 < HT < 1250 + 200 < MHT < 300 
+selection :: label: NJet_6-7__HT_1000-1250__MHT_300-450;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8   + 1000 < HT < 1250 + 300 < MHT < 450 
+selection :: label: NJet_6-7__HT_1000-1250__MHT_450-Inf;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8   + 1000 < HT < 1250 + 450 < MHT < 9999 
+
+selection :: label: NJet_6-7__HT_1250-1500__MHT_200-300;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8   + 1250 < HT < 1500 + 200 < MHT < 300 
+selection :: label: NJet_6-7__HT_1250-1500__MHT_300-450;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8   + 1250 < HT < 1500 + 300 < MHT < 450  
+selection :: label: NJet_6-7__HT_1250-1500__MHT_450-Inf;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8   + 1250 < HT < 1500 + 450 < MHT < 9999      
+
+selection :: label: NJet_6-7__HT_1500-Inf__MHT_200-300;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8   + 1500 < HT < 9999 + 200 < MHT < 300
+selection :: label: NJet_6-7__HT_1500-Inf__MHT_300-Inf;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8   + 1500 < HT < 9999 + 300 < MHT < 9999
+
+
+selection :: label: NJet_8-Inf__HT_0500-0800__MHT_200-Inf;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + NJets > 7   + 500 < HT < 800   + 200 < MHT < 9999
+
+selection :: label: NJet_8-Inf__HT_0800-1000__MHT_200-Inf;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + NJets > 7   + 800 < HT < 1000  + 200 < MHT < 9999
+
+selection :: label: NJet_8-Inf__HT_1000-1250__MHT_200-Inf;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + NJets > 7   + 1000 < HT < 1250 + 200 < MHT < 9999
+
+selection :: label: NJet_8-Inf__HT_1250-1500__MHT_200-Inf;    cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + NJets > 7   + 1250 < HT < 1500 + 200 < MHT < 9999
+
+selection :: label: NJet_8-Inf__HT_1500-Inf__MHT_200-Inf;     cuts: filters + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + NJets > 7   + HT > 1500        + 200 < MHT < 9999
