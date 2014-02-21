@@ -1,4 +1,4 @@
 RA2
 ===
 
-RA2-related code and documentation
+SUS-13-012 (RA2 8 TeV paper) related code and documentation
